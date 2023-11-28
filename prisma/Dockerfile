@@ -4,7 +4,7 @@ RUN npm install --global prisma
 RUN mkdir /app
 WORKDIR /app
 
-COPY ./* ./prisma/
+COPY ./ ./prisma/
 RUN npm init -y
 
 EXPOSE 5555/tcp
