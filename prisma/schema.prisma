@@ -25,8 +25,7 @@ model User {
 model Medicine {
   id        Int      @id @default(autoincrement())
   name      String
-  quantity  Int
-  metadata  Json    
+  quantity  Int   
   userId    Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -37,7 +36,6 @@ model Alert {
   id        Int      @id @default(autoincrement())
   title     String
   body      String
-  data      Json
   userId    Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
