@@ -9,8 +9,13 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({ data: createUserDto });
+  async create(createUserDto: CreateUserDto) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...User } = await this.prisma.user.create({
+      data: createUserDto,
+    });
+
+    return User;
   }
 
   findAll() {
