@@ -10,4 +10,8 @@ COPY . .
 
 RUN npm run build
 
+RUN npm install --global prisma
+
+RUN npx prisma generate
+
 CMD [ "npm", "run", "start:dev" ]
