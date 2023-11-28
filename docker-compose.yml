@@ -37,3 +37,11 @@ services:
       - '5050:80'
     depends_on:
       - db
+  prisma-studio:
+    container_name: prisma
+    ports:
+      - '5555:5555'
+    build:
+      context: ./prisma
+      dockerfile: Dockerfile
+    command: bash -c "npx prisma studio"
