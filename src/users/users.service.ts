@@ -1,6 +1,6 @@
 // src/users/users.service.ts
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -14,19 +14,25 @@ export class UsersService {
     const encriptPassword = await encoderPassword(createUserDto.password);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...User } = await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: { ...createUserDto, password: encriptPassword },
     });
-
-    return User;
+    delete user.password;
+    return user;
   }
 
   findAll() {
-    return this.prisma.user.findMany();
+    const users = this.prisma.user.findMany();
+    return users;
   }
 
-  findOne(id: number) {
-    return this.prisma.user.findUnique({ where: { id } });
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    delete user.password;
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
