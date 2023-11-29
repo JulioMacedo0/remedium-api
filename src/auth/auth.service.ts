@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
+import { comparePassword } from 'src/utils/bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +22,7 @@ export class AuthService {
       throw new NotFoundException(`No user found for email: ${email}`);
     }
 
-    const isPasswordValid = user.password === password;
-
-    if (!isPasswordValid) {
+    if (!comparePassword(password, user.password)) {
       throw new UnauthorizedException('Invalid Credentials');
     }
 
