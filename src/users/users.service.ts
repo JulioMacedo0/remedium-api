@@ -4,15 +4,18 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { encoderPassword } from 'src/utils/bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
+    const encriptPassword = await encoderPassword(createUserDto.password);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...User } = await this.prisma.user.create({
-      data: createUserDto,
+      data: { ...createUserDto, password: encriptPassword },
     });
 
     return User;
