@@ -21,17 +21,33 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    const users = this.prisma.user.findMany();
-    return users;
+  async findAll() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+      },
+    });
+    const userWhihoutPassword = users.map((user) => {
+      return user;
+    });
+    return userWhihoutPassword;
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+      },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    delete user.password;
+
     return user;
   }
 
