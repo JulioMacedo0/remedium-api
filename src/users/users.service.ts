@@ -29,10 +29,8 @@ export class UsersService {
         username: true,
       },
     });
-    const userWhihoutPassword = users.map((user) => {
-      return user;
-    });
-    return userWhihoutPassword;
+
+    return users;
   }
 
   async findOne(id: number) {
@@ -55,7 +53,9 @@ export class UsersService {
     return this.prisma.user.update({ where: { id }, data: updateUserDto });
   }
 
-  remove(id: number) {
-    return this.prisma.user.delete({ where: { id } });
+  async remove(id: number) {
+    const user = await this.prisma.user.delete({ where: { id } });
+    delete user.password;
+    return user;
   }
 }
