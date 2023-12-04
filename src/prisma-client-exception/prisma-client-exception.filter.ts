@@ -19,13 +19,11 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         const statusCode = HttpStatus.CONFLICT;
         const method = request.method;
         const url = request.url;
-        const meta = exception.meta;
         response.status(statusCode).json({
           statusCode,
           message,
           method,
           url,
-          meta,
         });
         break;
       }
@@ -33,13 +31,11 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         const statusCode = HttpStatus.NOT_FOUND;
         const method = request.method;
         const url = request.url;
-        const meta = exception.meta;
         response.status(statusCode).json({
           statusCode,
-          message,
+          message: !!exception.meta?.cause ? exception.meta.cause : message,
           method,
           url,
-          meta,
         });
         break;
       }
