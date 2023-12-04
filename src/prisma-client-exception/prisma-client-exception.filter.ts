@@ -13,7 +13,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const message = exception.message.replace(/\n/g, '');
-    
+
     switch (exception.code) {
       case 'P2002': {
         const status = HttpStatus.CONFLICT;
@@ -22,14 +22,13 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
           message: message,
           url: request.url,
           method: request.method,
-          
         });
         break;
       }
-      case 'P2025' : {
+      case 'P2025': {
         const status = HttpStatus.NOT_FOUND;
         response.status(status).json({
-          statusCode: status, 
+          statusCode: status,
           message: message,
           method: request.method,
           url: request.url,

@@ -1,6 +1,6 @@
 // src/users/users.service.ts
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -42,14 +42,17 @@ export class UsersService {
         username: true,
       },
     });
-    
+
     return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-     const user = await this.prisma.user.update({ where: { id }, data: updateUserDto });
-      delete user.password
-     return  user;
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
+    delete user.password;
+    return user;
   }
 
   async remove(id: number) {
