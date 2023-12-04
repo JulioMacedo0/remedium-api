@@ -10,15 +10,19 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     console.error(exception.message);
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const message = exception.message.replace(/\n/g, '');
-
+    
     switch (exception.code) {
       case 'P2002': {
         const status = HttpStatus.CONFLICT;
         response.status(status).json({
           statusCode: status,
           message: message,
+          url: request.url,
+          method: request.method,
+          
         });
         break;
       }
@@ -27,10 +31,11 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         response.status(status).json({
           statusCode: status, 
           message: message,
+          method: request.method,
+          url: request.url,
         });
       }
       default:
-        // default 500 error code
         super.catch(exception, host);
         break;
     }
