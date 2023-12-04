@@ -42,10 +42,7 @@ export class UsersService {
         username: true,
       },
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+    
     return user;
   }
 
