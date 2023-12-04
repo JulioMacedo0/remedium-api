@@ -12,27 +12,36 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    const message = exception.message.replace(/\n/g, '');
+    const message = exception.message;
 
     switch (exception.code) {
       case 'P2002': {
-        const status = HttpStatus.CONFLICT;
-        response.status(status).json({
-          statusCode: status,
-          message: message,
-          url: request.url,
-          method: request.method,
+        const statusCode = HttpStatus.CONFLICT;
+        const method = request.method;
+        const url = request.url;
+        const meta = exception.meta;
+        response.status(statusCode).json({
+          statusCode,
+          message,
+          method,
+          url,
+          meta,
         });
         break;
       }
       case 'P2025': {
-        const status = HttpStatus.NOT_FOUND;
-        response.status(status).json({
-          statusCode: status,
-          message: message,
-          method: request.method,
-          url: request.url,
+        const statusCode = HttpStatus.NOT_FOUND;
+        const method = request.method;
+        const url = request.url;
+        const meta = exception.meta;
+        response.status(statusCode).json({
+          statusCode,
+          message,
+          method,
+          url,
+          meta,
         });
+        break;
       }
       default:
         super.catch(exception, host);
