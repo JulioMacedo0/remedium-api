@@ -19,9 +19,10 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         const statusCode = HttpStatus.CONFLICT;
         const method = request.method;
         const url = request.url;
+
         response.status(statusCode).json({
           statusCode,
-          message,
+          message: `Duplicate field value: ${exception?.meta?.target}`,
           method,
           url,
         });
