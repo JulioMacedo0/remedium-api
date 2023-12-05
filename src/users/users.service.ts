@@ -27,6 +27,7 @@ export class UsersService {
         id: true,
         email: true,
         username: true,
+        medicines: true,
       },
     });
 
