@@ -22,7 +22,7 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
 
         response.status(statusCode).json({
           statusCode,
-          message: `Duplicate field value: ${exception?.meta?.target}`,
+          message: `An instance of the values [${exception?.meta?.target}] already exists`,
           method,
           url,
         });
