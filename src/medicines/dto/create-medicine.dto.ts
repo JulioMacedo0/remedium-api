@@ -11,7 +11,9 @@ export class CreateMedicineDto {
   @IsNotEmpty({ message: 'Quantity is required' })
   @ApiProperty()
   quantity: number;
+
   @ApiProperty()
+  @IsString()
   @IsNotEmpty({ message: 'userId is required' })
-  userId: number;
+  userId: string;
 }
