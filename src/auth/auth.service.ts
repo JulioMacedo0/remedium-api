@@ -19,15 +19,20 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: email } });
 
     if (!user) {
-      throw new NotFoundException(`Invalid Credentials`);
+      throw new NotFoundException(`User dont exist`);
     }
 
     if (!comparePassword(password, user.password)) {
       throw new UnauthorizedException('Invalid Credentials');
     }
-
+    delete user.password;
     return {
-      accessToken: this.jwtService.sign({ userId: user.id }),
+      accessToken: this.jwtService.sign({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      }),
+      user,
     };
   }
 }
