@@ -39,6 +39,7 @@ export class UsersController {
 
   @Get(':id')
   @ApiOkResponse({ type: UserEntity })
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
@@ -46,12 +47,14 @@ export class UsersController {
   @Patch(':id')
   @ApiCreatedResponse({ type: UpdateUserDto })
   @ApiOkResponse({ type: UserEntity })
+  @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
