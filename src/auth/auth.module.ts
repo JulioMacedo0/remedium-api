@@ -19,7 +19,7 @@ export const jwtSecret = 'zjP9h6ZI5LoSKCRj';
     }),
     UsersModule,
   ],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

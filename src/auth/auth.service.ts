@@ -19,7 +19,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: email } });
 
     if (!user) {
-      throw new NotFoundException(`User dont exist`);
+      throw new NotFoundException(`No user found for email: ${email}`);
     }
 
     if (!comparePassword(password, user.password)) {
