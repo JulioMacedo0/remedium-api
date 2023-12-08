@@ -12,7 +12,9 @@ export const jwtSecret = 'zjP9h6ZI5LoSKCRj';
 @Module({
   imports: [
     PrismaModule,
-    PassportModule,
+    PassportModule.register({
+      defaultStrategy: 'jwt',
+    }),
     JwtModule.register({
       secret: jwtSecret,
       signOptions: { expiresIn: '5m' },
