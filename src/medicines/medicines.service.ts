@@ -21,7 +21,7 @@ export class MedicinesService {
 
   async findAll(id: string) {
     return await this.prisma.medicine.findMany({
-      where: { id },
+      where: { userId: id },
     });
   }
 
