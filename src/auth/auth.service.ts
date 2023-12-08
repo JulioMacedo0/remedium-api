@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
 import { comparePassword } from 'src/utils/bcrypt';
-
+import { Response } from 'express';
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,7 +15,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(email: string, password: string): Promise<AuthEntity> {
+  async login(
+    res: Response,
+    email: string,
+    password: string,
+  ): Promise<AuthEntity> {
     const user = await this.prisma.user.findUnique({ where: { email: email } });
 
     if (!user) {
@@ -26,12 +30,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Credentials');
     }
     delete user.password;
+
+    const acessToken = this.jwtService.sign({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    });
+    res.cookie('user_token', acessToken);
     return {
-      accessToken: this.jwtService.sign({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      }),
+      accessToken: acessToken,
       user,
     };
   }
