@@ -7,20 +7,22 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class MedicinesService {
   constructor(private prisma: PrismaService) {}
 
-  create(createMedicineDto: CreateMedicineDto) {
+  create(id: string, createMedicineDto: CreateMedicineDto) {
     return this.prisma.medicine.create({
       data: {
         name: createMedicineDto.name,
         quantity: createMedicineDto.quantity,
         user: {
-          connect: { id: createMedicineDto.userId },
+          connect: { id },
         },
       },
     });
   }
 
-  findAll() {
-    return `This action returns all medicines`;
+  async findAll(id: string) {
+    return await this.prisma.medicine.findMany({
+      where: { id },
+    });
   }
 
   findOne(id: number) {
