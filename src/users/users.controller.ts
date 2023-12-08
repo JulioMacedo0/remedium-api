@@ -6,7 +6,6 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   UseGuards,
 } from '@nestjs/common';
@@ -15,9 +14,10 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
-
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { GetJwtPayload } from 'src/auth/jwt.decorator';
+import { JwtEnity } from 'src/auth/entity/jwt.entity';
 
 @Controller('users')
 @ApiTags('users')
@@ -37,25 +37,25 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
+  @Get('one')
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(JwtAuthGuard)
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  findOne(@GetJwtPayload() jwt: JwtEnity) {
+    return this.usersService.findOne(jwt.id);
   }
 
-  @Patch(':id')
+  @Patch()
   @ApiCreatedResponse({ type: UpdateUserDto })
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  update(@GetJwtPayload() jwt: JwtEnity, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(jwt.id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete()
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@GetJwtPayload() jwt: JwtEnity) {
+    return this.usersService.remove(jwt.id);
   }
 }
