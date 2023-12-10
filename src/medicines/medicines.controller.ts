@@ -35,7 +35,7 @@ export class MedicinesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.medicinesService.findOne(+id);
+    return this.medicinesService.findOne(id);
   }
 
   @Patch(':id')

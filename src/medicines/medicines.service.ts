@@ -25,8 +25,12 @@ export class MedicinesService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} medicine`;
+  async findOne(id: string) {
+    return await this.prisma.medicine.findMany({
+      where: {
+        id,
+      },
+    });
   }
 
   update(id: number, updateMedicineDto: UpdateMedicineDto) {
