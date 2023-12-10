@@ -34,8 +34,8 @@ export class MedicinesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.medicinesService.findOne(id);
+  findOne(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
+    return this.medicinesService.findOne(id, jwt.id);
   }
 
   @Patch(':id')

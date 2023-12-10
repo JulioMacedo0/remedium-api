@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { UpdateMedicineDto } from './dto/update-medicine.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -25,12 +25,16 @@ export class MedicinesService {
     });
   }
 
-  async findOne(id: string) {
-    return await this.prisma.medicine.findMany({
+  async findOne(id: string, userId : string) {
+    const medicine = await this.prisma.medicine.findUniqueOrThrow({
       where: {
         id,
       },
     });
+
+    if(medicine.userId != userId) throw  new UnauthorizedException()
+
+      return medicine;
   }
 
   update(id: number, updateMedicineDto: UpdateMedicineDto) {
