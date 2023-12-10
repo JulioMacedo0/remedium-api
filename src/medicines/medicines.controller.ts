@@ -14,13 +14,17 @@ import { UpdateMedicineDto } from './dto/update-medicine.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { MedicineEntity } from './entities/medicine.entity';
 
 @Controller('medicines')
+@ApiTags('medicines')
 @UseGuards(JwtAuthGuard)
 export class MedicinesController {
   constructor(private readonly medicinesService: MedicinesService) {}
 
   @Post()
+  @ApiOkResponse({ type: MedicineEntity })
   create(
     @GetJwtPayload() jwt: JwtEnity,
     @Body() createMedicineDto: CreateMedicineDto,
@@ -29,16 +33,19 @@ export class MedicinesController {
   }
 
   @Get()
+  @ApiOkResponse({ type: MedicineEntity, isArray: true })
   findAll(@GetJwtPayload() jwt: JwtEnity) {
     return this.medicinesService.findAll(jwt.id);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: MedicineEntity })
   findOne(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
     return this.medicinesService.findOne(id, jwt.id);
   }
 
   @Patch(':id')
+  @ApiOkResponse({ type: MedicineEntity })
   update(
     @Param('id') id: string,
     @Body() updateMedicineDto: UpdateMedicineDto,
@@ -48,6 +55,7 @@ export class MedicinesController {
   }
 
   @Delete(':id')
+  @ApiOkResponse({ type: MedicineEntity })
   remove(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
     return this.medicinesService.remove(id, jwt.id);
   }
