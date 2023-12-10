@@ -42,12 +42,13 @@ export class MedicinesController {
   update(
     @Param('id') id: string,
     @Body() updateMedicineDto: UpdateMedicineDto,
+    @GetJwtPayload() jwt: JwtEnity,
   ) {
-    return this.medicinesService.update(+id, updateMedicineDto);
+    return this.medicinesService.update(id, updateMedicineDto, jwt.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.medicinesService.remove(+id);
+  remove(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
+    return this.medicinesService.remove(id, jwt.id);
   }
 }

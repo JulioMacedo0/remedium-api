@@ -25,23 +25,40 @@ export class MedicinesService {
     });
   }
 
-  async findOne(id: string, userId : string) {
+  async findOne(id: string, userId: string) {
     const medicine = await this.prisma.medicine.findUniqueOrThrow({
       where: {
         id,
       },
     });
 
-    if(medicine.userId != userId) throw  new UnauthorizedException()
+    if (medicine.userId != userId) throw new UnauthorizedException();
 
-      return medicine;
+    return medicine;
   }
 
-  update(id: number, updateMedicineDto: UpdateMedicineDto) {
-    return `This action updates a #${id} medicine`;
+  async update(
+    id: string,
+    updateMedicineDto: UpdateMedicineDto,
+    userId: string,
+  ) {
+    const medicine = await this.prisma.medicine.update({
+      where: { id },
+      data: updateMedicineDto,
+    });
+
+    if (medicine.userId != userId) throw new UnauthorizedException();
+
+    return medicine;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} medicine`;
+  async remove(id: string, userId: string) {
+    const medicine = await this.prisma.medicine.delete({
+      where: { id },
+    });
+
+    if (medicine.userId != userId) throw new UnauthorizedException();
+
+    return medicine;
   }
 }
