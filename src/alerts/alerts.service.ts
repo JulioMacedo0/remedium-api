@@ -1,10 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AlertsService {
+  private readonly logger = new Logger(AlertsService.name);
   constructor(private prisma: PrismaService) {}
   create(id: string, createAlertDto: CreateAlertDto) {
     return this.prisma.alert.create({
@@ -57,5 +59,10 @@ export class AlertsService {
     if (alert.userId != userId) throw new UnauthorizedException();
 
     return alert;
+  }
+  @Cron('*/1 * * * * *')
+  async verifyAlerts() {
+    const alerts = await this.prisma.alert.findMany();
+    this.logger.debug(alerts);
   }
 }
