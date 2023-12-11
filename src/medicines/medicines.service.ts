@@ -37,11 +37,7 @@ export class MedicinesService {
     return medicine;
   }
 
-  async update(
-    id: string,
-    updateMedicineDto: UpdateMedicineDto,
-    userId: string,
-  ) {
+  async update(id: string, updateMedicineDto: UpdateMedicineDto) {
     const medicine = await this.prisma.medicine.update({
       where: { id },
       data: updateMedicineDto,
@@ -50,7 +46,7 @@ export class MedicinesService {
     return medicine;
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string) {
     const medicine = await this.prisma.medicine.delete({
       where: { id },
     });
