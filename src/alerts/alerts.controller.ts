@@ -31,22 +31,26 @@ export class AlertsController {
   }
 
   @Get()
-  findAll() {
-    return this.alertsService.findAll();
+  findAll(@GetJwtPayload() jwt: JwtEnity) {
+    return this.alertsService.findAll(jwt.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.alertsService.findOne(+id);
+  findOne(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
+    return this.alertsService.findOne(id, jwt.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAlertDto: UpdateAlertDto) {
-    return this.alertsService.update(+id, updateAlertDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateAlertDto: UpdateAlertDto,
+    @GetJwtPayload() jwt: JwtEnity,
+  ) {
+    return this.alertsService.update(id, updateAlertDto, jwt.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.alertsService.remove(+id);
+  remove(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
+    return this.alertsService.remove(id, jwt.id);
   }
 }

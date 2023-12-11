@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -20,19 +20,42 @@ export class AlertsService {
     });
   }
 
-  findAll() {
-    return `This action returns all alerts`;
+  findAll(id: string) {
+    return this.prisma.alert.findMany({
+      where: { userId: id },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} alert`;
+  async findOne(id: string, userId: string) {
+    const alert = await this.prisma.alert.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    if (alert.userId != userId) throw new UnauthorizedException();
+
+    return alert;
   }
 
-  update(id: number, updateAlertDto: UpdateAlertDto) {
-    return `This action updates a #${id} alert`;
+  async update(id: string, updateAlertDto: UpdateAlertDto, userId: string) {
+    const alert = await this.prisma.alert.update({
+      where: { id },
+      data: updateAlertDto,
+    });
+
+    if (alert.userId != userId) throw new UnauthorizedException();
+
+    return alert;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} alert`;
+  async remove(id: string, userId: string) {
+    const alert = await this.prisma.alert.delete({
+      where: { id },
+    });
+
+    if (alert.userId != userId) throw new UnauthorizedException();
+
+    return alert;
   }
 }
