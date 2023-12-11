@@ -59,4 +59,10 @@ export class MedicinesController {
   remove(@Param('id') id: string, @GetJwtPayload() jwt: JwtEnity) {
     return this.medicinesService.remove(id, jwt.id);
   }
+
+  @Get('/decrement/:id/:quantity')
+  @ApiOkResponse({ type: MedicineEntity })
+  decrement(@Param('id') id: string, @Param('quantity') quantity: string) {
+    return this.medicinesService.decrement(id, +quantity);
+  }
 }
