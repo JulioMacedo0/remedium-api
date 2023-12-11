@@ -49,4 +49,6 @@ enum unitOfMeasurament {
   mcg
   l
   ml
+  drops
+  units
 }
