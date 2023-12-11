@@ -61,4 +61,11 @@ export class MedicinesService {
 
     return medicine;
   }
+
+  decrement(id: string) {
+    return this.prisma.medicine.update({
+      where: { id },
+      data: { quantity: { decrement: 1 } },
+    });
+  }
 }
