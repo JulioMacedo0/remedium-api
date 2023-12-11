@@ -47,8 +47,6 @@ export class MedicinesService {
       data: updateMedicineDto,
     });
 
-    if (medicine.userId != userId) throw new UnauthorizedException();
-
     return medicine;
   }
 
@@ -56,8 +54,6 @@ export class MedicinesService {
     const medicine = await this.prisma.medicine.delete({
       where: { id },
     });
-
-    if (medicine.userId != userId) throw new UnauthorizedException();
 
     return medicine;
   }
