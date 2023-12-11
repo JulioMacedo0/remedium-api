@@ -28,6 +28,7 @@ export class UsersService {
         email: true,
         username: true,
         medicines: true,
+        alerts: true,
       },
     });
 
@@ -41,6 +42,7 @@ export class UsersService {
         id: true,
         email: true,
         username: true,
+        alerts: true,
       },
     });
 
