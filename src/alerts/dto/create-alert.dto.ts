@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Alert, unitOfMeasurament } from '@prisma/client';
+import { Alert, Trigger, unitOfMeasurament } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateAlertDto implements Alert {
@@ -26,6 +26,10 @@ export class CreateAlertDto implements Alert {
   @IsNotEmpty({ message: 'Body is required' })
   @ApiProperty()
   body: string;
+
+  @IsNotEmpty({ message: 'Trigger is required' })
+  @ApiProperty()
+  trigger: Trigger;
 
   createdAt: Date;
   id: string;
