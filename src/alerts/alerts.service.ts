@@ -15,6 +15,9 @@ export class AlertsService {
         body: createAlertDto.body,
         subtitle: createAlertDto.subtitle,
         unit_of_measurement: createAlertDto.unit_of_measurement,
+        trigger: {
+          create: createAlertDto.trigger,
+        },
         user: {
           connect: { id },
         },
@@ -25,6 +28,9 @@ export class AlertsService {
   findAll(id: string) {
     return this.prisma.alert.findMany({
       where: { userId: id },
+      include: {
+        trigger: true,
+      },
     });
   }
 
@@ -32,6 +38,10 @@ export class AlertsService {
     const alert = await this.prisma.alert.findUniqueOrThrow({
       where: {
         id,
+      },
+      include: {
+        trigger: true,
+        user: true,
       },
     });
 
@@ -43,7 +53,14 @@ export class AlertsService {
   async update(id: string, updateAlertDto: UpdateAlertDto, userId: string) {
     const alert = await this.prisma.alert.update({
       where: { id },
-      data: updateAlertDto,
+      data: {
+        body: updateAlertDto.body,
+        title: updateAlertDto.title,
+        subtitle: updateAlertDto.subtitle,
+        trigger: {
+          update: updateAlertDto.trigger,
+        },
+      },
     });
 
     if (alert.userId != userId) throw new UnauthorizedException();
@@ -60,9 +77,24 @@ export class AlertsService {
 
     return alert;
   }
-  @Cron('*/1 * * * * *')
-  async verifyAlerts() {
-    const alerts = await this.prisma.alert.findMany();
-    this.logger.debug(alerts);
-  }
+  // @Cron('*/1 * * * * *')
+  // async verifyAlerts() {
+  //   const alerts = await this.prisma.alert.findMany({
+  //     select: {
+  //       title: true,
+  //       body: true,
+  //       subtitle: true,
+  //       unit_of_measurement: true,
+  //       user: {
+  //         select: {
+  //           expo_token: true,
+  //         },
+  //       },
+  //       trigger: true,
+  //     },
+  //   });
+  //   alerts.forEach((element) => {
+  //     console.log(element);
+  //   });
+  // }
 }
