@@ -22,4 +22,6 @@ export class CreateUserDto {
   @MinLength(6)
   @ApiProperty()
   password: string;
+
+  expo_token: string[];
 }

@@ -8,4 +8,6 @@ export class UpdateUserDto extends PartialType(
   email?: string;
   @ApiProperty()
   username?: string;
+
+  expo_token: string[];
 }
