@@ -1,4 +1,4 @@
-import { PrismaClientExceptionFilter } from './prisma-client-exception.filter';
+import { PrismaClientExceptionFilter } from './prisma-client-known-request.error.filter';
 
 describe('PrismaClientExceptionFilter', () => {
   it('should be defined', () => {
