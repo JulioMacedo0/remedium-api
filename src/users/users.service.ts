@@ -29,6 +29,7 @@ export class UsersService {
         username: true,
         medicines: true,
         alerts: true,
+        expo_token: true,
       },
     });
 
@@ -43,6 +44,7 @@ export class UsersService {
         email: true,
         username: true,
         alerts: true,
+        expo_token: true,
       },
     });
 
@@ -52,7 +54,12 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: {
+        ...updateUserDto,
+        expo_token: {
+          push: updateUserDto.expo_token,
+        },
+      },
     });
     delete user.password;
     return user;
