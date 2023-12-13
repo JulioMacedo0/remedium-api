@@ -47,6 +47,7 @@ model Alert {
 
 model Trigger {
  id        String      @id @default(uuid())
+ type AlertType
  alertId String @unique
  alert Alert @relation(fields: [alertId], references: [id])
  date DateTime?
@@ -75,4 +76,11 @@ enum DayOfWeek {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+enum AlertType { 
+  INTERVAL
+  WEEKLY
+  DAILY
+  DATE
 }
