@@ -3,6 +3,8 @@ import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
+import { AlertType } from '@prisma/client';
+//import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AlertsService {
@@ -16,11 +18,14 @@ export class AlertsService {
         subtitle: createAlertDto.subtitle,
         unit_of_measurement: createAlertDto.unit_of_measurement,
         trigger: {
-          create: createAlertDto.trigger,
+          create: { ...createAlertDto.trigger, last_alert: new Date() },
         },
         user: {
           connect: { id },
         },
+      },
+      include: {
+        trigger: true,
       },
     });
   }
@@ -77,24 +82,59 @@ export class AlertsService {
 
     return alert;
   }
-  // @Cron('*/1 * * * * *')
-  // async verifyAlerts() {
-  //   const alerts = await this.prisma.alert.findMany({
-  //     select: {
-  //       title: true,
-  //       body: true,
-  //       subtitle: true,
-  //       unit_of_measurement: true,
-  //       user: {
-  //         select: {
-  //           expo_token: true,
-  //         },
-  //       },
-  //       trigger: true,
-  //     },
-  //   });
-  //   alerts.forEach((element) => {
-  //     console.log(element);
-  //   });
-  // }
+  @Cron('*/60 * * * * *')
+  async verifyAlerts() {
+    const alerts = await this.prisma.alert.findMany({
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        subtitle: true,
+        unit_of_measurement: true,
+        createdAt: true,
+        user: {
+          select: {
+            email: true,
+            expo_token: true,
+          },
+        },
+        trigger: true,
+      },
+    });
+    for (const alert of alerts) {
+      const { trigger, user } = alert;
+
+      if (trigger) {
+        switch (trigger.type) {
+          case AlertType.INTERVAL:
+            const lastNotification = trigger.last_alert ?? alert.createdAt;
+            const currentTime = new Date();
+            const timeSinceLastNotification =
+              currentTime.getTime() - lastNotification.getTime();
+            const intervalInMilliseconds =
+              trigger.hours * 60 * 60 * 1000 +
+              trigger.minutes * 60 * 1000 +
+              trigger.seconds * 1000;
+
+            if (timeSinceLastNotification >= intervalInMilliseconds) {
+              this.logger.debug(
+                `enviando notificação de ${user.email} alert: ${alert.title}`,
+              );
+
+              await this.prisma.alert.update({
+                where: { id: alert.id },
+                data: {
+                  trigger: {
+                    update: {
+                      last_alert: currentTime,
+                    },
+                  },
+                },
+              });
+            }
+            break;
+        }
+      }
+    }
+  }
 }
