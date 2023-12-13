@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
 //import { Cron } from '@nestjs/schedule';
-
+import { Expo } from 'expo-server-sdk';
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
@@ -84,6 +84,7 @@ export class AlertsService {
   }
   @Cron('*/60 * * * * *')
   async verifyAlerts() {
+    this.logger.log('Checking alerts 🔎🔎🔎');
     const alerts = await this.prisma.alert.findMany({
       select: {
         id: true,
@@ -101,12 +102,18 @@ export class AlertsService {
         trigger: true,
       },
     });
+
+    this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
+
+    const expo = new Expo();
+
     for (const alert of alerts) {
       const { trigger, user } = alert;
 
       if (trigger) {
         switch (trigger.type) {
           case AlertType.INTERVAL:
+            const messages = [];
             const lastNotification = trigger.last_alert ?? alert.createdAt;
             const currentTime = new Date();
             const timeSinceLastNotification =
