@@ -52,6 +52,7 @@ CREATE TABLE "Trigger" (
     "type" "AlertType" NOT NULL,
     "alertId" TEXT NOT NULL,
     "date" TIMESTAMP(3),
+    "last_alert" TIMESTAMP(3),
     "hours" INTEGER,
     "minutes" INTEGER,
     "seconds" INTEGER,

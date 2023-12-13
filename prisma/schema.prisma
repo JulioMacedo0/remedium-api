@@ -51,6 +51,7 @@ model Trigger {
  alertId String @unique
  alert Alert @relation(fields: [alertId], references: [id])
  date DateTime?
+ last_alert DateTime?
  hours Int?
  minutes Int?
  seconds Int?
