@@ -4,6 +4,9 @@ CREATE TYPE "unitOfMeasurament" AS ENUM ('g', 'mg', 'mcg', 'l', 'ml', 'drops', '
 -- CreateEnum
 CREATE TYPE "DayOfWeek" AS ENUM ('SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY');
 
+-- CreateEnum
+CREATE TYPE "AlertType" AS ENUM ('INTERVAL', 'WEEKLY', 'DAILY', 'DATE');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -46,6 +49,7 @@ CREATE TABLE "Alert" (
 -- CreateTable
 CREATE TABLE "Trigger" (
     "id" TEXT NOT NULL,
+    "type" "AlertType" NOT NULL,
     "alertId" TEXT NOT NULL,
     "date" TIMESTAMP(3),
     "hours" INTEGER,
