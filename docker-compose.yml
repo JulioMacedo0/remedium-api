@@ -40,10 +40,10 @@ services:
   prisma-studio:
     container_name: prisma
     ports:
-      - '5555:5555'
+      - '5556:5556'
     depends_on:
       - db
     build:
       context: ./prisma
       dockerfile: Dockerfile
-    command: bash -c "npx prisma migrate dev && npx prisma studio"
+    command: bash -c "npx prisma migrate dev && npx prisma studio --port 5556"

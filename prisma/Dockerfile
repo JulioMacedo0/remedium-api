@@ -7,4 +7,4 @@ WORKDIR /app
 COPY ./ ./prisma/
 RUN npm init -y
 
-EXPOSE 5555/tcp
+EXPOSE 5556/tcp
