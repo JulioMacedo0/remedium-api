@@ -106,14 +106,13 @@ export class AlertsService {
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
 
     const expo = new Expo();
-
+    const messages = [];
     for (const alert of alerts) {
       const { trigger, user } = alert;
 
       if (trigger) {
         switch (trigger.type) {
           case AlertType.INTERVAL:
-            const messages = [];
             const lastNotification = trigger.last_alert ?? alert.createdAt;
             const currentTime = new Date();
             const timeSinceLastNotification =
@@ -122,12 +121,36 @@ export class AlertsService {
               trigger.hours * 60 * 60 * 1000 +
               trigger.minutes * 60 * 1000 +
               trigger.seconds * 1000;
-
+            console.log(user.expo_token[0], user.email);
             if (timeSinceLastNotification >= intervalInMilliseconds) {
               this.logger.debug(
                 `enviando notificação de ${user.email} alert: ${alert.title}`,
               );
 
+              messages.push({
+                to: user.expo_token[0],
+                title: alert.title,
+                subtitle: alert.subtitle,
+                sound: 'default',
+                body: alert.body,
+                data: { withSome: 'data' },
+              });
+              const chunks = expo.chunkPushNotifications(messages);
+
+              for (const chunk of chunks) {
+                try {
+                  const ticketChunk =
+                    await expo.sendPushNotificationsAsync(chunk);
+                  console.log(ticketChunk);
+
+                  // NOTE: If a ticket contains an error code in ticket.details.error, you
+                  // must handle it appropriately. The error codes are listed in the Expo
+                  // documentation:
+                  // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                } catch (error) {
+                  console.error(error);
+                }
+              }
               await this.prisma.alert.update({
                 where: { id: alert.id },
                 data: {
