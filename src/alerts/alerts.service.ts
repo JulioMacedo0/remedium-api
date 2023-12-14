@@ -106,13 +106,14 @@ export class AlertsService {
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
 
     const expo = new Expo();
-    const messages = [];
+
     for (const alert of alerts) {
       const { trigger, user } = alert;
-
+      this.logger.log(`checking ${alert.title} is time to send`);
       if (trigger) {
         switch (trigger.type) {
           case AlertType.INTERVAL:
+            const messages = [];
             const lastNotification = trigger.last_alert ?? alert.createdAt;
             const currentTime = new Date();
             const timeSinceLastNotification =
@@ -121,7 +122,7 @@ export class AlertsService {
               trigger.hours * 60 * 60 * 1000 +
               trigger.minutes * 60 * 1000 +
               trigger.seconds * 1000;
-            console.log(user.expo_token[0], user.email);
+
             if (timeSinceLastNotification >= intervalInMilliseconds) {
               this.logger.debug(
                 `enviando notificação de ${user.email} alert: ${alert.title}`,
@@ -132,8 +133,8 @@ export class AlertsService {
                 title: alert.title,
                 subtitle: alert.subtitle,
                 sound: 'default',
-                body: alert.body,
-                data: { withSome: 'data' },
+                body: `${alert.body} alertID:${alert.id}`,
+                data: { subttile: alert.subtitle },
               });
               const chunks = expo.chunkPushNotifications(messages);
 
