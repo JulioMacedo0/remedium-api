@@ -11,52 +11,55 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  username  String
-  email     String     @unique
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  medicines Medicine[]
-  alerts    Alert[]
+  id         String     @id @default(uuid())
+  username   String
+  email      String     @unique
+  password   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  medicines  Medicine[]
+  alerts     Alert[]
   expo_token String[]
 }
 
 model Medicine {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   quantity  Int
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
+  Alert     Alert[]
 }
 
 model Alert {
-  id        String      @id @default(uuid())
-  title     String
-  subtitle  String
-   body      String
+  id                  String            @id @default(uuid())
+  title               String
+  subtitle            String
+  body                String
   unit_of_measurement unitOfMeasurament
-   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-   user      User     @relation(fields: [userId], references: [id])
-  trigger   Trigger?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  userId              String
+  user        User     @relation(fields: [userId], references: [id])
+  medicine_id String
+  medicine    Medicine @relation(fields: [medicine_id], references: [id])
+  trigger     Trigger?
 }
 
 model Trigger {
- id        String      @id @default(uuid())
- type AlertType
- alertId String @unique
- alert Alert @relation(fields: [alertId], references: [id])
- date DateTime?
- last_alert DateTime?
- hours Int?
- minutes Int?
- seconds Int?
- week DayOfWeek[]
- repeats Boolean
+  id         String      @id @default(uuid())
+  type       AlertType
+  alertId    String      @unique
+  alert      Alert       @relation(fields: [alertId], references: [id])
+  date       DateTime?
+  last_alert DateTime?
+  hours      Int?
+  minutes    Int?
+  seconds    Int?
+  week       DayOfWeek[]
+  repeats    Boolean
 }
 
 enum unitOfMeasurament {
@@ -79,7 +82,7 @@ enum DayOfWeek {
   SATURDAY
 }
 
-enum AlertType { 
+enum AlertType {
   INTERVAL
   WEEKLY
   DAILY
