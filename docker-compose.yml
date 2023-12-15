@@ -46,4 +46,4 @@ services:
     build:
       context: ./prisma
       dockerfile: Dockerfile
-    command: bash -c "npx prisma migrate dev && npx prisma studio --port 5556"
+    command: bash -c "npx prisma db push && npx prisma studio --port 5556"
