@@ -82,7 +82,7 @@ export class AlertsService {
 
     return alert;
   }
-  @Cron('*/60 * * * * *')
+  @Cron('*/5 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
     const alerts = await this.prisma.alert.findMany({
@@ -95,6 +95,7 @@ export class AlertsService {
         createdAt: true,
         user: {
           select: {
+            username: true,
             email: true,
             expo_token: true,
           },
@@ -109,7 +110,13 @@ export class AlertsService {
 
     for (const alert of alerts) {
       const { trigger, user } = alert;
-      this.logger.log(`checking ${alert.title} is time to send`);
+
+      if (!user.expo_token.length) {
+        this.logger.error(`User ${user.username} dont have token`);
+        return;
+      }
+
+      this.logger.log(`checking ${alert.title} is time to send `);
       if (trigger) {
         switch (trigger.type) {
           case AlertType.INTERVAL:
