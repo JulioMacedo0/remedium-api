@@ -124,19 +124,68 @@ export class AlertsService {
       if (trigger) {
         switch (trigger.type) {
           case AlertType.INTERVAL:
-            const messages = [];
-            const lastNotification = trigger.last_alert ?? alert.createdAt;
-            const currentTime = new Date();
-            const timeSinceLastNotification =
-              currentTime.getTime() - lastNotification.getTime();
-            const intervalInMilliseconds =
-              trigger.hours * 60 * 60 * 1000 +
-              trigger.minutes * 60 * 1000 +
-              trigger.seconds * 1000;
+            {
+              const messages = [];
+              const lastNotification = trigger.last_alert ?? alert.createdAt;
+              const currentTime = new Date();
+              const timeSinceLastNotification =
+                currentTime.getTime() - lastNotification.getTime();
+              const intervalInMilliseconds =
+                trigger.hours * 60 * 60 * 1000 +
+                trigger.minutes * 60 * 1000 +
+                trigger.seconds * 1000;
 
-            if (timeSinceLastNotification >= intervalInMilliseconds) {
+              if (timeSinceLastNotification >= intervalInMilliseconds) {
+                this.logger.debug(
+                  `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
+                );
+
+                messages.push({
+                  to: user.expo_token[0],
+                  title: alert.title,
+                  subtitle: alert.subtitle,
+                  sound: 'default',
+                  body: `${alert.body} alertID:${alert.id}`,
+                  data: { subttile: alert.subtitle },
+                });
+                const chunks = expo.chunkPushNotifications(messages);
+
+                for (const chunk of chunks) {
+                  try {
+                    const ticketChunk =
+                      await expo.sendPushNotificationsAsync(chunk);
+                    console.log(ticketChunk);
+
+                    // NOTE: If a ticket contains an error code in ticket.details.error, you
+                    // must handle it appropriately. The error codes are listed in the Expo
+                    // documentation:
+                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }
+                await this.prisma.alert.update({
+                  where: { id: alert.id },
+                  data: {
+                    trigger: {
+                      update: {
+                        last_alert: currentTime,
+                      },
+                    },
+                  },
+                });
+              }
+            }
+            break;
+          case AlertType.DAILY:
+            const messages = [];
+            const currentTime = new Date();
+            const hour = currentTime.getHours();
+            const minute = currentTime.getMinutes();
+
+            if (hour === trigger.hours && minute === trigger.minutes) {
               this.logger.debug(
-                `enviando notificação de ${user.email} alert: ${alert.title}`,
+                `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
               );
 
               messages.push({
@@ -163,16 +212,6 @@ export class AlertsService {
                   console.error(error);
                 }
               }
-              await this.prisma.alert.update({
-                where: { id: alert.id },
-                data: {
-                  trigger: {
-                    update: {
-                      last_alert: currentTime,
-                    },
-                  },
-                },
-              });
             }
             break;
         }
