@@ -31,6 +31,10 @@ export class CreateAlertDto implements Alert {
   @ApiProperty()
   trigger: Trigger;
 
+  @IsNotEmpty({ message: 'MedicineId is required' })
+  @ApiProperty()
+  medicine_id: string;
+
   createdAt: Date;
   id: string;
   updatedAt: Date;
