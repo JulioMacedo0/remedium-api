@@ -6,6 +6,7 @@ import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
 //import { Cron } from '@nestjs/schedule';
 import { Expo } from 'expo-server-sdk';
+import { getNumberWeek } from 'src/helpers/getNumberWeek';
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
@@ -178,12 +179,56 @@ export class AlertsService {
             }
             break;
           case AlertType.DAILY:
+            {
+              const messages = [];
+              const currentTime = new Date();
+              const hour = currentTime.getHours();
+              const minute = currentTime.getMinutes();
+
+              if (hour === trigger.hours && minute === trigger.minutes) {
+                this.logger.debug(
+                  `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
+                );
+
+                messages.push({
+                  to: user.expo_token[0],
+                  title: alert.title,
+                  subtitle: alert.subtitle,
+                  sound: 'default',
+                  body: `${alert.body} alertID:${alert.id}`,
+                  data: { subttile: alert.subtitle },
+                });
+                const chunks = expo.chunkPushNotifications(messages);
+
+                for (const chunk of chunks) {
+                  try {
+                    const ticketChunk =
+                      await expo.sendPushNotificationsAsync(chunk);
+                    console.log(ticketChunk);
+
+                    // NOTE: If a ticket contains an error code in ticket.details.error, you
+                    // must handle it appropriately. The error codes are listed in the Expo
+                    // documentation:
+                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }
+              }
+            }
+            break;
+          case AlertType.WEEKLY: {
             const messages = [];
             const currentTime = new Date();
-            const hour = currentTime.getHours();
-            const minute = currentTime.getMinutes();
+            const week = currentTime.getDay();
+            const weeksToTrigger = [];
 
-            if (hour === trigger.hours && minute === trigger.minutes) {
+            for (const week of trigger.week) {
+              weeksToTrigger.push(week);
+            }
+
+            const triggerWeek = getNumberWeek(trigger.week);
+            if (week === triggerWeek) {
               this.logger.debug(
                 `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
               );
@@ -213,7 +258,7 @@ export class AlertsService {
                 }
               }
             }
-            break;
+          }
         }
       }
     }
