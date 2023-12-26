@@ -23,7 +23,11 @@ export class AlertsService {
         user: {
           connect: { id },
         },
+        medicine: {
+          connect: { id: createAlertDto.medicine_id },
+        },
       },
+
       include: {
         trigger: true,
       },
