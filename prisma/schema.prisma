@@ -60,6 +60,7 @@ model Trigger {
   seconds    Int?
   week       DayOfWeek[]
   repeats    Boolean
+  
 }
 
 enum unitOfMeasurament {

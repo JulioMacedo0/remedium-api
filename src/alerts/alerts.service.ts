@@ -3,7 +3,7 @@ import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
-import { AlertType, DayOfWeek } from '@prisma/client';
+import { AlertType } from '@prisma/client';
 //import { Cron } from '@nestjs/schedule';
 import { Expo } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
