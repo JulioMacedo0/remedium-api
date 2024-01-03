@@ -3,10 +3,11 @@ import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
-import { AlertType } from '@prisma/client';
+import { AlertType, DayOfWeek } from '@prisma/client';
 //import { Cron } from '@nestjs/schedule';
 import { Expo } from 'expo-server-sdk';
-import { getNumberWeek } from 'src/helpers/getNumberWeek';
+import { isAlertDay } from 'src/helpers/isAlertDay';
+import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
@@ -219,18 +220,23 @@ export class AlertsService {
             break;
           case AlertType.WEEKLY: {
             const messages = [];
-            const currentTime = new Date();
-            const week = currentTime.getDay();
-            const weeksToTrigger = [];
-
+            const weeksToTrigger: number[] = [];
             for (const week of trigger.week) {
-              weeksToTrigger.push(week);
+              weeksToTrigger.push(dayOfWeekToNumber(week));
             }
 
-            const triggerWeek = getNumberWeek(trigger.week);
-            if (week === triggerWeek) {
+            const isAlerDay = isAlertDay(weeksToTrigger);
+
+            if (!isAlerDay) return;
+
+            const currentTime = new Date();
+            const hour = currentTime.getHours();
+            const minute = currentTime.getMinutes();
+            console.log('hour', hour);
+            console.log('minute', minute);
+            if (hour === trigger.hours && minute === trigger.minutes) {
               this.logger.debug(
-                `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
+                `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
               );
 
               messages.push({
