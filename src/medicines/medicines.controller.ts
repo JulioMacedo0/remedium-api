@@ -17,7 +17,7 @@ import { JwtEnity } from 'src/auth/entity/jwt.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { MedicineEntity } from './entities/medicine.entity';
 
-@Controller('medicines')
+@Controller('api/v1/medicines')
 @ApiTags('medicines')
 @UseGuards(JwtAuthGuard)
 export class MedicinesController {

@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
 
-@Controller('alerts')
+@Controller('api/v1/alerts')
 @UseGuards(JwtAuthGuard)
 @ApiTags('alerts')
 export class AlertsController {

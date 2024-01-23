@@ -19,7 +19,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
 
-@Controller('users')
+@Controller('api/v1/users')
 @ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
