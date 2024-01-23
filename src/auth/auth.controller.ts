@@ -5,17 +5,17 @@ import { LoginDto } from './dto/login.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
+  @Post('signIn')
   @ApiOkResponse({ type: AuthEntity })
   login(
     @Body() { email, password }: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.login(response, email, password);
+    return this.authService.signIn(response, email, password);
   }
 }

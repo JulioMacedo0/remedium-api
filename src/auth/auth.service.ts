@@ -15,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(
+  async signIn(
     res: Response,
     email: string,
     password: string,
