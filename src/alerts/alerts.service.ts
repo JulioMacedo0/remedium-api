@@ -41,6 +41,7 @@ export class AlertsService {
       where: { userId: id },
       include: {
         trigger: true,
+        medicine: true,
       },
     });
 
