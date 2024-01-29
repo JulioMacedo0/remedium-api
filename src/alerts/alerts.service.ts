@@ -36,13 +36,15 @@ export class AlertsService {
     });
   }
 
-  findAll(id: string) {
-    return this.prisma.alert.findMany({
+  async findAll(id: string) {
+    const alerts = await this.prisma.alert.findMany({
       where: { userId: id },
       include: {
         trigger: true,
       },
     });
+
+    return alerts;
   }
 
   async findOne(id: string, userId: string) {
