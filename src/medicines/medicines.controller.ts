@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { MedicinesService } from './medicines.service';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
@@ -16,6 +17,8 @@ import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { MedicineEntity } from './entities/medicine.entity';
+import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
+import { medicineValidationSchema } from 'src/shared/validation-schema/medicine';
 
 @Controller('api/v1/medicines')
 @ApiTags('medicines')
@@ -23,6 +26,7 @@ import { MedicineEntity } from './entities/medicine.entity';
 export class MedicinesController {
   constructor(private readonly medicinesService: MedicinesService) {}
 
+  @UsePipes(new ZodValidationPipe(medicineValidationSchema))
   @Post()
   @ApiOkResponse({ type: MedicineEntity })
   create(
