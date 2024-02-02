@@ -3,12 +3,14 @@ import { z } from 'zod';
 export const signInValidationSchema = z
   .object({
     email: z
-      .string({ invalid_type_error: 'Email only accepts string values' })
-      .min(1, 'Email dont be empty')
+      .string({
+        required_error: 'field email is required',
+      })
+
       .email(),
     password: z
       .string({
-        invalid_type_error: 'Password only accepts string values',
+        required_error: 'field password is required',
       })
       .min(8, 'Password must contain at least 8 characters'),
   })
