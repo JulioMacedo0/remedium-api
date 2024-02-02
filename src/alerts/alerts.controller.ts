@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { AlertsService } from './alerts.service';
 import { CreateAlertDto } from './dto/create-alert.dto';
@@ -15,6 +16,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
+import { createAlertValidationSchema } from 'src/shared/validation-schema/alert';
+import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
 
 @Controller('api/v1/alerts')
 @UseGuards(JwtAuthGuard)
@@ -23,6 +26,7 @@ export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
   @Post()
+  @UsePipes(new ZodValidationPipe(createAlertValidationSchema))
   create(
     @Body() createAlertDto: CreateAlertDto,
     @GetJwtPayload() jwt: JwtEnity,
