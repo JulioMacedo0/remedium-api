@@ -16,7 +16,10 @@ const weeklyAlertSchema = z.object({
   type: z.literal(AlertType.WEEKLY),
   hour: z.number({ required_error: 'field hour is required' }),
   minute: z.number({ required_error: 'field minute is required' }),
-  week: z.nativeEnum(DayOfWeek).array(),
+  week: z
+    .nativeEnum(DayOfWeek, { required_error: 'field week is required' })
+    .array()
+    .min(1, { message: 'field week at least 1 element' }),
 });
 
 const dailyAlertSchema = z.object({
