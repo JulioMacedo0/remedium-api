@@ -120,7 +120,7 @@ export class AlertsService {
     for (const alert of alerts) {
       const { trigger, user } = alert;
 
-      if (!user.expo_token.length) {
+      if (!user.expo_token) {
         this.logger.error(`User ${user.username} dont have token`);
         return;
       }
@@ -146,7 +146,7 @@ export class AlertsService {
                 );
 
                 messages.push({
-                  to: user.expo_token[0],
+                  to: user.expo_token,
                   title: alert.title,
                   subtitle: alert.subtitle,
                   sound: 'default',
@@ -195,7 +195,7 @@ export class AlertsService {
                 );
 
                 messages.push({
-                  to: user.expo_token[0],
+                  to: user.expo_token,
                   title: alert.title,
                   subtitle: alert.subtitle,
                   sound: 'default',
@@ -243,7 +243,7 @@ export class AlertsService {
               );
 
               messages.push({
-                to: user.expo_token[0],
+                to: user.expo_token,
                 title: alert.title,
                 subtitle: alert.subtitle,
                 sound: 'default',
