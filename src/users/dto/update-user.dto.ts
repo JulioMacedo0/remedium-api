@@ -9,5 +9,5 @@ export class UpdateUserDto extends PartialType(
   @ApiProperty()
   username?: string;
 
-  expo_token: string[];
+  expo_token: string;
 }

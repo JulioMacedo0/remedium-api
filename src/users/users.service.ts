@@ -56,9 +56,6 @@ export class UsersService {
       where: { id },
       data: {
         ...updateUserDto,
-        expo_token: {
-          push: updateUserDto.expo_token,
-        },
       },
     });
     delete user.password;

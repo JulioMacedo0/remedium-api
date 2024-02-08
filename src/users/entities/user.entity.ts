@@ -21,6 +21,6 @@ export class UserEntity implements User {
   email: string;
 
   @ApiProperty()
-  expo_token: string[];
+  expo_token: string;
   password: string;
 }
