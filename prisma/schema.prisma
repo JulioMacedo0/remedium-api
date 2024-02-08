@@ -19,7 +19,7 @@ model User {
   updatedAt  DateTime   @updatedAt
   medicines  Medicine[]
   alerts     Alert[]
-  expo_token String[]
+  expo_token String
 }
 
 model Medicine {
@@ -30,7 +30,7 @@ model Medicine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id])
-  Alert     Alert[]
+  // Alert     Alert[]
 }
 
 model Alert {
@@ -43,8 +43,8 @@ model Alert {
   updatedAt           DateTime          @updatedAt
   userId              String
   user        User     @relation(fields: [userId], references: [id])
-  medicine_id String
-  medicine    Medicine @relation(fields: [medicine_id], references: [id])
+  // medicine_id String
+  // medicine    Medicine @relation(fields: [medicine_id], references: [id])
   trigger     Trigger?
 }
 
@@ -60,7 +60,6 @@ model Trigger {
   seconds    Int?
   week       DayOfWeek[]
   repeats    Boolean
-  
 }
 
 enum unitOfMeasurament {
