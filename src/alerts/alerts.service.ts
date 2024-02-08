@@ -25,9 +25,9 @@ export class AlertsService {
         user: {
           connect: { id },
         },
-        medicine: {
-          connect: { id: createAlertDto.medicine_id },
-        },
+        // medicine: {
+        //   connect: { id: createAlertDto.medicine_id },
+        // },
       },
 
       include: {
@@ -41,7 +41,7 @@ export class AlertsService {
       where: { userId: id },
       include: {
         trigger: true,
-        medicine: true,
+        // medicine: true,
       },
     });
 
