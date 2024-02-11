@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Alert, Trigger, unitOfMeasurament } from '@prisma/client';
+import { Alert, Trigger } from '@prisma/client';
 
 export class CreateAlertDto implements Alert {
   @ApiProperty()
@@ -8,8 +8,8 @@ export class CreateAlertDto implements Alert {
   @ApiProperty()
   subtitle: string;
 
-  @ApiProperty()
-  unit_of_measurement: unitOfMeasurament;
+  // @ApiProperty()
+  // unit_of_measurement: unitOfMeasurament;
 
   @ApiProperty()
   body: string;
@@ -17,8 +17,8 @@ export class CreateAlertDto implements Alert {
   @ApiProperty()
   trigger: Trigger;
 
-  @ApiProperty()
-  medicine_id: string;
+  // @ApiProperty()
+  // medicine_id: string;
 
   createdAt: Date;
   id: string;

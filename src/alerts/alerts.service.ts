@@ -18,7 +18,7 @@ export class AlertsService {
         title: createAlertDto.title,
         body: createAlertDto.body,
         subtitle: createAlertDto.subtitle,
-        unit_of_measurement: createAlertDto.unit_of_measurement,
+        // unit_of_measurement: createAlertDto.unit_of_measurement,
         trigger: {
           create: { ...createAlertDto.trigger, last_alert: new Date() },
         },
@@ -100,7 +100,7 @@ export class AlertsService {
         title: true,
         body: true,
         subtitle: true,
-        unit_of_measurement: true,
+        // unit_of_measurement: true,
         createdAt: true,
         user: {
           select: {
@@ -112,7 +112,8 @@ export class AlertsService {
         trigger: true,
       },
     });
-
+    const dat = new Date();
+    console.log(dat);
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
 
     const expo = new Expo();
@@ -127,7 +128,7 @@ export class AlertsService {
 
       this.logger.log(`checking ${alert.title} is time to send `);
       if (trigger) {
-        switch (trigger.type) {
+        switch (trigger.alertType) {
           case AlertType.INTERVAL:
             {
               const messages = [];
@@ -142,7 +143,7 @@ export class AlertsService {
 
               if (timeSinceLastNotification >= intervalInMilliseconds) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
+                  `Sedding notification. Type:${AlertType.INTERVAL} Title:${alert.title}`,
                 );
 
                 messages.push({
