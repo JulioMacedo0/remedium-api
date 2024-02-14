@@ -91,7 +91,7 @@ export class AlertsService {
 
     return alert;
   }
-  @Cron('*/5 * * * * *')
+  @Cron('*/60 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
     const alerts = await this.prisma.alert.findMany({
@@ -222,53 +222,97 @@ export class AlertsService {
               }
             }
             break;
-          case AlertType.WEEKLY: {
-            const messages = [];
-            const weeksToTrigger: number[] = [];
-            for (const week of trigger.week) {
-              weeksToTrigger.push(dayOfWeekToNumber(week));
-            }
+          case AlertType.WEEKLY:
+            {
+              const messages = [];
+              const weeksToTrigger: number[] = [];
+              for (const week of trigger.week) {
+                weeksToTrigger.push(dayOfWeekToNumber(week));
+              }
 
-            const isAlerDay = isAlertDay(weeksToTrigger);
+              const isAlerDay = isAlertDay(weeksToTrigger);
 
-            if (!isAlerDay) return;
+              if (!isAlerDay) return;
 
-            const currentTime = new Date();
-            const hour = currentTime.getHours();
-            const minute = currentTime.getMinutes();
-            console.log('hour', hour);
-            console.log('minute', minute);
-            if (hour === trigger.hours && minute === trigger.minutes) {
-              this.logger.debug(
-                `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
-              );
+              const currentTime = new Date();
+              const hour = currentTime.getHours();
+              const minute = currentTime.getMinutes();
+              console.log('hour', hour);
+              console.log('minute', minute);
+              if (hour === trigger.hours && minute === trigger.minutes) {
+                this.logger.debug(
+                  `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
+                );
 
-              messages.push({
-                to: user.expo_token,
-                title: alert.title,
-                subtitle: alert.subtitle,
-                sound: 'default',
-                body: `${alert.body} alertID:${alert.id}`,
-                data: { subttile: alert.subtitle },
-              });
-              const chunks = expo.chunkPushNotifications(messages);
+                messages.push({
+                  to: user.expo_token,
+                  title: alert.title,
+                  subtitle: alert.subtitle,
+                  sound: 'default',
+                  body: `${alert.body} alertID:${alert.id}`,
+                  data: { subttile: alert.subtitle },
+                });
+                const chunks = expo.chunkPushNotifications(messages);
 
-              for (const chunk of chunks) {
-                try {
-                  const ticketChunk =
-                    await expo.sendPushNotificationsAsync(chunk);
-                  console.log(ticketChunk);
+                for (const chunk of chunks) {
+                  try {
+                    const ticketChunk =
+                      await expo.sendPushNotificationsAsync(chunk);
+                    console.log(ticketChunk);
 
-                  // NOTE: If a ticket contains an error code in ticket.details.error, you
-                  // must handle it appropriately. The error codes are listed in the Expo
-                  // documentation:
-                  // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-                } catch (error) {
-                  console.error(error);
+                    // NOTE: If a ticket contains an error code in ticket.details.error, you
+                    // must handle it appropriately. The error codes are listed in the Expo
+                    // documentation:
+                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                  } catch (error) {
+                    console.error(error);
+                  }
                 }
               }
             }
-          }
+            break;
+          case AlertType.DATE:
+            {
+              const messages = [];
+
+              const currentTime = new Date();
+              const hour = currentTime.getHours();
+              const minute = currentTime.getMinutes();
+              console.log('hour', hour);
+              console.log('minute', minute);
+              console.log('date', trigger.date);
+              if (hour === trigger.hours && minute === trigger.minutes) {
+                this.logger.debug(
+                  `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
+                );
+
+                messages.push({
+                  to: user.expo_token,
+                  title: alert.title,
+                  subtitle: alert.subtitle,
+                  sound: 'default',
+                  body: `${alert.body} alertID:${alert.id}`,
+                  data: { subttile: alert.subtitle },
+                });
+                const chunks = expo.chunkPushNotifications(messages);
+
+                for (const chunk of chunks) {
+                  try {
+                    const ticketChunk =
+                      await expo.sendPushNotificationsAsync(chunk);
+                    console.log(ticketChunk);
+
+                    // NOTE: If a ticket contains an error code in ticket.details.error, you
+                    // must handle it appropriately. The error codes are listed in the Expo
+                    // documentation:
+                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }
+              }
+            }
+            break;
         }
       }
     }
