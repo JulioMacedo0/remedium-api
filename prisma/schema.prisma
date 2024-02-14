@@ -42,7 +42,7 @@ model Alert {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   userId              String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   // medicine_id String
   // medicine    Medicine @relation(fields: [medicine_id], references: [id])
   trigger     Trigger?
@@ -52,7 +52,7 @@ model Trigger {
   id         String      @id @default(uuid())
   alertType       AlertType
   alertId    String      @unique
-  alert      Alert       @relation(fields: [alertId], references: [id])
+  alert      Alert       @relation(fields: [alertId], references: [id], onDelete: Cascade)
   date       DateTime?
   last_alert DateTime?
   hours      Int?
