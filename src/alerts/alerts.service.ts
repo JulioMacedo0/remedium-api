@@ -4,7 +4,7 @@ import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
-//import { Cron } from '@nestjs/schedule';
+import { isSameHour, isSameMinute, isToday } from 'date-fns';
 import { Expo } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
@@ -91,7 +91,7 @@ export class AlertsService {
 
     return alert;
   }
-  @Cron('*/60 * * * * *')
+  @Cron('*/5 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
     const alerts = await this.prisma.alert.findMany({
@@ -112,8 +112,7 @@ export class AlertsService {
         trigger: true,
       },
     });
-    const dat = new Date();
-    console.log(dat);
+
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
 
     const expo = new Expo();
@@ -274,16 +273,15 @@ export class AlertsService {
           case AlertType.DATE:
             {
               const messages = [];
+              const now = new Date();
 
-              const currentTime = new Date();
-              const hour = currentTime.getHours();
-              const minute = currentTime.getMinutes();
-              console.log('hour', hour);
-              console.log('minute', minute);
-              console.log('date', trigger.date);
-              if (hour === trigger.hours && minute === trigger.minutes) {
+              if (
+                isToday(trigger.date) &&
+                isSameHour(trigger.date, now) &&
+                isSameMinute(trigger.date, now)
+              ) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
+                  `Sedding notification. Type:${AlertType.DATE} Title:${alert.title}`,
                 );
 
                 messages.push({
