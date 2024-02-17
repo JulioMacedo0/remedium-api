@@ -9,7 +9,17 @@ const intervalAlertSchema = z.object({
 
 const dateAlertSchema = z.object({
   alertType: z.literal(AlertType.DATE),
-  date: z.date({ required_error: 'field date is required' }),
+  date: z.coerce
+    .date({ required_error: 'field date is required' })
+    .transform((dateString, ctx) => {
+      const date = new Date(dateString);
+      if (!z.date().safeParse(date).success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.invalid_date,
+        });
+      }
+      return date;
+    }),
 });
 
 const weeklyAlertSchema = z.object({
