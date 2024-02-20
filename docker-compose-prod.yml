@@ -16,29 +16,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: remedium-api
+      target: production
+    # command: npx prisma db push
+    container_name: remedium-api-prod
     environment:
       - PORT=3000
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      - prisma
     volumes:
       - ./src:/app/src
-
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    container_name: remedium-pgadmin
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=pgadmin
-    ports:
-      - '5050:80'
-    depends_on:
-      - db
-  prisma-studio:
-    container_name: prisma
+  prisma:
+    container_name: prisma-studio
     ports:
       - '5556:5556'
     depends_on:
