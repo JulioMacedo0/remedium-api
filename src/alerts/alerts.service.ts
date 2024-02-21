@@ -91,7 +91,7 @@ export class AlertsService {
 
     return alert;
   }
-  @Cron('*/5 * * * * *')
+  @Cron('*/60 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
     const alerts = await this.prisma.alert.findMany({
