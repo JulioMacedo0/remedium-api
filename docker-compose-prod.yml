@@ -17,6 +17,7 @@ services:
       target: production
     # command: npx prisma db push
     container_name: remedium-api-prod
+    restart: always
     environment:
       - PORT=3000
     ports:
@@ -34,4 +35,4 @@ services:
     build:
       context: ./prisma
       dockerfile: Dockerfile
-    command: npx prisma db push
+    command: npx prisma db push --skip-generate
