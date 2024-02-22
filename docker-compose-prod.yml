@@ -35,4 +35,5 @@ services:
     build:
       context: ./prisma
       dockerfile: Dockerfile
+      target: production
     command: npx prisma db push --skip-generate
