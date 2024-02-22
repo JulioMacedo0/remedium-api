@@ -45,5 +45,6 @@ RUN npm run build
 
 RUN npm install --global prisma
 
+USER node
 
 CMD [ "npm", "run", "start:prod" ]
