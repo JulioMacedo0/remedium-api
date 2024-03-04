@@ -5,9 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
 import { isSameHour, isSameMinute, isToday } from 'date-fns';
-import { Expo } from 'expo-server-sdk';
+import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
+import { sendPushMessages } from 'src/helpers/sendPushMessages';
+import { createExpoMessage } from 'src/helpers/createExpoMessage';
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
@@ -75,6 +77,9 @@ export class AlertsService {
           update: updateAlertDto.trigger,
         },
       },
+      include: {
+        trigger: true,
+      },
     });
 
     if (alert.userId != userId) throw new UnauthorizedException();
@@ -91,6 +96,7 @@ export class AlertsService {
 
     return alert;
   }
+
   @Cron('*/60 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
@@ -125,7 +131,9 @@ export class AlertsService {
         return;
       }
 
-      this.logger.log(`checking ${alert.title} is time to send `);
+      this.logger.log(
+        `CHECK ALERT: ${alert.title} | ALERT TYPE: ${alert.trigger.alertType}  | USER: ${user.username}`,
+      );
       if (trigger) {
         switch (trigger.alertType) {
           case AlertType.INTERVAL:
@@ -142,33 +150,12 @@ export class AlertsService {
 
               if (timeSinceLastNotification >= intervalInMilliseconds) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.INTERVAL} Title:${alert.title}`,
+                  `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push({
-                  to: user.expo_token,
-                  title: alert.title,
-                  subtitle: alert.subtitle,
-                  sound: 'default',
-                  body: `${alert.body} alertID:${alert.id}`,
-                  data: { subttile: alert.subtitle },
-                });
-                const chunks = expo.chunkPushNotifications(messages);
+                messages.push(createExpoMessage(user, alert));
+                sendPushMessages(messages, this.logger);
 
-                for (const chunk of chunks) {
-                  try {
-                    const ticketChunk =
-                      await expo.sendPushNotificationsAsync(chunk);
-                    console.log(ticketChunk);
-
-                    // NOTE: If a ticket contains an error code in ticket.details.error, you
-                    // must handle it appropriately. The error codes are listed in the Expo
-                    // documentation:
-                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-                  } catch (error) {
-                    console.error(error);
-                  }
-                }
                 await this.prisma.alert.update({
                   where: { id: alert.id },
                   data: {
@@ -191,33 +178,11 @@ export class AlertsService {
 
               if (hour === trigger.hours && minute === trigger.minutes) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.DAILY} Title:${alert.title}`,
+                  `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push({
-                  to: user.expo_token,
-                  title: alert.title,
-                  subtitle: alert.subtitle,
-                  sound: 'default',
-                  body: `${alert.body} alertID:${alert.id}`,
-                  data: { subttile: alert.subtitle },
-                });
-                const chunks = expo.chunkPushNotifications(messages);
-
-                for (const chunk of chunks) {
-                  try {
-                    const ticketChunk =
-                      await expo.sendPushNotificationsAsync(chunk);
-                    console.log(ticketChunk);
-
-                    // NOTE: If a ticket contains an error code in ticket.details.error, you
-                    // must handle it appropriately. The error codes are listed in the Expo
-                    // documentation:
-                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-                  } catch (error) {
-                    console.error(error);
-                  }
-                }
+                messages.push(createExpoMessage(user, alert));
+                sendPushMessages(messages, this.logger);
               }
             }
             break;
@@ -236,43 +201,19 @@ export class AlertsService {
               const currentTime = new Date();
               const hour = currentTime.getHours();
               const minute = currentTime.getMinutes();
-              console.log('hour', hour);
-              console.log('minute', minute);
               if (hour === trigger.hours && minute === trigger.minutes) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.WEEKLY} Title:${alert.title}`,
+                  `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push({
-                  to: user.expo_token,
-                  title: alert.title,
-                  subtitle: alert.subtitle,
-                  sound: 'default',
-                  body: `${alert.body} alertID:${alert.id}`,
-                  data: { subttile: alert.subtitle },
-                });
-                const chunks = expo.chunkPushNotifications(messages);
-
-                for (const chunk of chunks) {
-                  try {
-                    const ticketChunk =
-                      await expo.sendPushNotificationsAsync(chunk);
-                    console.log(ticketChunk);
-
-                    // NOTE: If a ticket contains an error code in ticket.details.error, you
-                    // must handle it appropriately. The error codes are listed in the Expo
-                    // documentation:
-                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-                  } catch (error) {
-                    console.error(error);
-                  }
-                }
+                messages.push(createExpoMessage(user, alert));
+                sendPushMessages(messages, this.logger);
               }
             }
             break;
           case AlertType.DATE:
             {
-              const messages = [];
+              const messages: ExpoPushMessage[] = [];
               const now = new Date();
 
               if (
@@ -281,33 +222,11 @@ export class AlertsService {
                 isSameMinute(trigger.date, now)
               ) {
                 this.logger.debug(
-                  `Sedding notification. Type:${AlertType.DATE} Title:${alert.title}`,
+                  `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push({
-                  to: user.expo_token,
-                  title: alert.title,
-                  subtitle: alert.subtitle,
-                  sound: 'default',
-                  body: `${alert.body} alertID:${alert.id}`,
-                  data: { subttile: alert.subtitle },
-                });
-                const chunks = expo.chunkPushNotifications(messages);
-
-                for (const chunk of chunks) {
-                  try {
-                    const ticketChunk =
-                      await expo.sendPushNotificationsAsync(chunk);
-                    console.log(ticketChunk);
-
-                    // NOTE: If a ticket contains an error code in ticket.details.error, you
-                    // must handle it appropriately. The error codes are listed in the Expo
-                    // documentation:
-                    // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
-                  } catch (error) {
-                    console.error(error);
-                  }
-                }
+                messages.push(createExpoMessage(user, alert));
+                sendPushMessages(messages, this.logger);
               }
             }
             break;
