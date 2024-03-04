@@ -47,4 +47,6 @@ RUN npm install --global prisma
 
 USER node
 
-CMD [ "npm", "run", "start:prod" ]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start:prod"]
+
+# CMD [ "npm", "run", "start:prod" ]
