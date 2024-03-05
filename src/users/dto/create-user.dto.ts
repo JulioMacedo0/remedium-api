@@ -23,5 +23,7 @@ export class CreateUserDto {
   @ApiProperty()
   password: string;
 
+  languageTag: string;
+  timeZone: string;
   expo_token: string;
 }
