@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 export class UserEntity implements User {
+  languageTag: string;
+  timeZone: string;
   @ApiProperty()
   username: string;
   @ApiProperty()

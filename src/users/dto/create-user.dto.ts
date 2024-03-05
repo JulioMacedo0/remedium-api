@@ -23,7 +23,11 @@ export class CreateUserDto {
   @ApiProperty()
   password: string;
 
+  @IsNotEmpty({ message: 'languageTag is required' })
   languageTag: string;
+
+  @IsNotEmpty({ message: 'timeZone is required' })
   timeZone: string;
+
   expo_token: string;
 }
