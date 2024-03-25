@@ -26,6 +26,17 @@ const weeklyAlertSchema = z.object({
   alertType: z.literal(AlertType.WEEKLY),
   hours: z.number({ required_error: 'field hour is required' }),
   minutes: z.number({ required_error: 'field minute is required' }),
+  date: z.coerce
+    .date({ required_error: 'field date is required' })
+    .transform((dateString, ctx) => {
+      const date = new Date(dateString);
+      if (!z.date().safeParse(date).success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.invalid_date,
+        });
+      }
+      return date;
+    }),
   week: z
     .nativeEnum(DayOfWeek, { required_error: 'field week is required' })
     .array()
