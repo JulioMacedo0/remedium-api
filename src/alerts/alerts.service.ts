@@ -220,18 +220,6 @@ export class AlertsService {
             {
               const messages: ExpoPushMessage[] = [];
 
-              let options = { timeZone: `${user.timeZone}` };
-              let userDateZoned = now.toLocaleString('pt-BR', options);
-              let triggerDateZoned = trigger.date.toLocaleString(
-                'pt-BR',
-                options,
-              );
-              console.log('userDateZoned', userDateZoned);
-              console.log(trigger.date);
-              console.log('triggerDateZoned', triggerDateZoned);
-              console.log(
-                `${trigger.date} = ${triggerDateZoned} - ${now} = ${userDateZoned}`,
-              );
               if (
                 isToday(trigger.date) &&
                 isSameHour(trigger.date, now) &&
