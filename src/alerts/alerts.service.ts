@@ -176,11 +176,11 @@ export class AlertsService {
           case AlertType.DAILY:
             {
               const messages = [];
-              const currentTime = new Date();
-              const hour = currentTime.getHours();
-              const minute = currentTime.getMinutes();
 
-              if (hour === trigger.hours && minute === trigger.minutes) {
+              if (
+                isSameHour(trigger.date, now) &&
+                isSameMinute(trigger.date, now)
+              ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );

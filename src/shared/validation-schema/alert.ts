@@ -45,6 +45,17 @@ const weeklyAlertSchema = z.object({
 
 const dailyAlertSchema = z.object({
   alertType: z.literal(AlertType.DAILY),
+  date: z.coerce
+    .date({ required_error: 'field date is required' })
+    .transform((dateString, ctx) => {
+      const date = new Date(dateString);
+      if (!z.date().safeParse(date).success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.invalid_date,
+        });
+      }
+      return date;
+    }),
   hours: z.number({ required_error: 'field hour is required' }),
   minutes: z.number({ required_error: 'field minute is required' }),
 });
