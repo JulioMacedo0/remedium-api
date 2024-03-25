@@ -5,11 +5,13 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
 import { isSameHour, isSameMinute, isToday } from 'date-fns';
-import { Expo, ExpoPushMessage } from 'expo-server-sdk';
+
+import { ExpoPushMessage } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
 import { sendPushMessages } from 'src/helpers/sendPushMessages';
 import { createExpoMessage } from 'src/helpers/createExpoMessage';
+
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
@@ -100,6 +102,8 @@ export class AlertsService {
   @Cron('*/60 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
+    const now = new Date();
+
     const alerts = await this.prisma.alert.findMany({
       select: {
         id: true,
@@ -113,6 +117,8 @@ export class AlertsService {
             username: true,
             email: true,
             expo_token: true,
+            languageTag: true,
+            timeZone: true,
           },
         },
         trigger: true,
@@ -120,8 +126,6 @@ export class AlertsService {
     });
 
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
-
-    const expo = new Expo();
 
     for (const alert of alerts) {
       const { trigger, user } = alert;
@@ -132,7 +136,7 @@ export class AlertsService {
       }
 
       this.logger.log(
-        `CHECK ALERT: ${alert.title} | ALERT TYPE: ${alert.trigger.alertType}  | USER: ${user.username}`,
+        `CHECK ALERT: ${alert.title} | ALERT TYPE: ${trigger.alertType}  | USER: ${user.username}`,
       );
       if (trigger) {
         switch (trigger.alertType) {
@@ -190,6 +194,7 @@ export class AlertsService {
             {
               const messages = [];
               const weeksToTrigger: number[] = [];
+
               for (const week of trigger.week) {
                 weeksToTrigger.push(dayOfWeekToNumber(week));
               }
@@ -198,10 +203,10 @@ export class AlertsService {
 
               if (!isAlerDay) return;
 
-              const currentTime = new Date();
-              const hour = currentTime.getHours();
-              const minute = currentTime.getMinutes();
-              if (hour === trigger.hours && minute === trigger.minutes) {
+              if (
+                isSameHour(trigger.date, now) &&
+                isSameMinute(trigger.date, now)
+              ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
@@ -214,8 +219,19 @@ export class AlertsService {
           case AlertType.DATE:
             {
               const messages: ExpoPushMessage[] = [];
-              const now = new Date();
 
+              let options = { timeZone: `${user.timeZone}` };
+              let userDateZoned = now.toLocaleString('pt-BR', options);
+              let triggerDateZoned = trigger.date.toLocaleString(
+                'pt-BR',
+                options,
+              );
+              console.log('userDateZoned', userDateZoned);
+              console.log(trigger.date);
+              console.log('triggerDateZoned', triggerDateZoned);
+              console.log(
+                `${trigger.date} = ${triggerDateZoned} - ${now} = ${userDateZoned}`,
+              );
               if (
                 isToday(trigger.date) &&
                 isSameHour(trigger.date, now) &&
