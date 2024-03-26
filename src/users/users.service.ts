@@ -39,14 +39,8 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        alerts: true,
-        expo_token: true,
-      },
     });
+    delete user.password;
 
     return user;
   }
