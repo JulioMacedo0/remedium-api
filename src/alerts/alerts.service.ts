@@ -4,8 +4,13 @@ import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
-import { isSameHour, isSameMinute, isToday } from 'date-fns';
-
+import {
+  differenceInMilliseconds,
+  isSameHour,
+  isSameMinute,
+  isToday,
+} from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 import { ExpoPushMessage } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
@@ -130,6 +135,9 @@ export class AlertsService {
     for (const alert of alerts) {
       const { trigger, user } = alert;
 
+      const serverUserZonedTime = utcToZonedTime(now, user.timeZone);
+      const clientUserZonedTime = utcToZonedTime(trigger.date, user.timeZone);
+
       if (!user.expo_token) {
         this.logger.error(`User ${user.username} dont have token`);
         return;
@@ -144,15 +152,17 @@ export class AlertsService {
             {
               const messages = [];
               const lastNotification = trigger.last_alert ?? alert.createdAt;
-              const currentTime = new Date();
-              const timeSinceLastNotification =
-                currentTime.getTime() - lastNotification.getTime();
+              const differenceInMillisecondsBetweenDates =
+                differenceInMilliseconds(now, lastNotification);
+
               const intervalInMilliseconds =
                 trigger.hours * 60 * 60 * 1000 +
                 trigger.minutes * 60 * 1000 +
                 trigger.seconds * 1000;
 
-              if (timeSinceLastNotification >= intervalInMilliseconds) {
+              if (
+                differenceInMillisecondsBetweenDates >= intervalInMilliseconds
+              ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
@@ -165,7 +175,7 @@ export class AlertsService {
                   data: {
                     trigger: {
                       update: {
-                        last_alert: currentTime,
+                        last_alert: now,
                       },
                     },
                   },
@@ -178,8 +188,8 @@ export class AlertsService {
               const messages = [];
 
               if (
-                isSameHour(trigger.date, now) &&
-                isSameMinute(trigger.date, now)
+                isSameHour(clientUserZonedTime, serverUserZonedTime) &&
+                isSameMinute(clientUserZonedTime, serverUserZonedTime)
               ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
@@ -199,13 +209,13 @@ export class AlertsService {
                 weeksToTrigger.push(dayOfWeekToNumber(week));
               }
 
-              const isAlerDay = isAlertDay(weeksToTrigger);
+              const isAlerDay = isAlertDay(weeksToTrigger, serverUserZonedTime);
 
               if (!isAlerDay) return;
 
               if (
-                isSameHour(trigger.date, now) &&
-                isSameMinute(trigger.date, now)
+                isSameHour(clientUserZonedTime, serverUserZonedTime) &&
+                isSameMinute(clientUserZonedTime, serverUserZonedTime)
               ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
@@ -222,8 +232,8 @@ export class AlertsService {
 
               if (
                 isToday(trigger.date) &&
-                isSameHour(trigger.date, now) &&
-                isSameMinute(trigger.date, now)
+                isSameHour(clientUserZonedTime, serverUserZonedTime) &&
+                isSameMinute(clientUserZonedTime, serverUserZonedTime)
               ) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
