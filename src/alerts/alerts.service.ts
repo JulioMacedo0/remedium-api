@@ -132,7 +132,7 @@ export class AlertsService {
 
     this.logger.log(`${alerts.length} alerts found 🌴🌴🌴`);
 
-    for (const alert of alerts) {
+    alerts.forEach(async (alert) => {
       const { trigger, user } = alert;
 
       const serverUserZonedTime = utcToZonedTime(now, user.timeZone);
@@ -246,6 +246,6 @@ export class AlertsService {
             break;
         }
       }
-    }
+    });
   }
 }
