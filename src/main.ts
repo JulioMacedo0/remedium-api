@@ -24,6 +24,6 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientValidationFilter(httpAdapter));
 
   await app.listen(process.env.PORT);
-  logger.debug(`Running in port ${process.env.PORT}`);
+  logger.log(`Running in port ${process.env.PORT}`);
 }
 bootstrap();
