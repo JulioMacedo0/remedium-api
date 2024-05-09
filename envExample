@@ -1,0 +1,2 @@
+DATABASE_URL="postgresql://postgres:postgres@remedium-db:5432/postgres?schema=public"
+JWTSECRET="abcd"
