@@ -6,6 +6,8 @@ FROM node:18-alpine As development
 
 WORKDIR /app
 
+COPY .env ./
+
 COPY package*.json ./
 
 RUN npm install
@@ -32,6 +34,8 @@ CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start:dev"]
 FROM node:18-alpine As production
 
 WORKDIR /app
+
+COPY .env ./
 
 COPY package*.json ./
 
