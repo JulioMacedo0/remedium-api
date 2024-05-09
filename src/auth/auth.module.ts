@@ -7,8 +7,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { UsersModule } from 'src/users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 
-export const jwtSecret = 'zjP9h6ZI5LoSKCRj';
-
 @Module({
   imports: [
     PrismaModule,
@@ -16,7 +14,7 @@ export const jwtSecret = 'zjP9h6ZI5LoSKCRj';
       defaultStrategy: 'jwt',
     }),
     JwtModule.register({
-      secret: jwtSecret,
+      secret: process.env.JWTSECRET,
       signOptions: { expiresIn: '7d' },
     }),
     UsersModule,
