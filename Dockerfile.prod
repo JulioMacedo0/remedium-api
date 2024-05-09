@@ -12,9 +12,8 @@ COPY . .
 
 
 RUN npx prisma generate
-RUN npm run build
 
-RUN npm install --global prisma
+RUN npm run build
 
 USER node
 
