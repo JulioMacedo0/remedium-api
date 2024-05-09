@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:postgres@remedium-db:5432/postgres?schema=public"
+  url      =  process.env.DATABASE_URL
 }
 
 model User {
