@@ -19,9 +19,9 @@ services:
     container_name: remedium-api-prod
     restart: always
     environment:
-      - PORT=3001
+      - PORT=${PORT}
     ports:
-      - '3001:3001'
+      - '${PORT}:${PORT}'
     depends_on:
       - db
     volumes:

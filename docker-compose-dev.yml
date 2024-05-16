@@ -17,9 +17,9 @@ services:
       target: development
     container_name: remedium-api-dev
     environment:
-      - PORT=3000
+      - PORT=${PORT}
     ports:
-      - '3000:3000'
+      - '${PORT}:${PORT}'
     depends_on:
       - prisma
     volumes:
