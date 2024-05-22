@@ -5,6 +5,7 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY ./ ./prisma/
+
 RUN npm init -y
 
 EXPOSE 5556/tcp
@@ -17,6 +18,6 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY ./ ./prisma/
-RUN npm init -y
+
 
 EXPOSE 5556/tcp

@@ -27,6 +27,8 @@ services:
 
   prisma:
     container_name: prisma-studio
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - '5556:5556'
     depends_on:
