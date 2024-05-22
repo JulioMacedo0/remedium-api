@@ -6,15 +6,14 @@ COPY .env ./
 
 COPY package*.json ./
 
-RUN npm install
+RUN yarn install
 
 COPY . .
 
-
 RUN npx prisma generate
 
-RUN npm run build
+RUN yarn build
 
 USER node
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:prod"]

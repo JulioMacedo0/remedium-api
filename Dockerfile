@@ -10,19 +10,19 @@ COPY .env ./
 
 COPY package*.json ./
 
-RUN npm install
+RUN yarn install
 
 COPY . .
 
 
 RUN npx prisma generate
 
-RUN npm run build
+RUN yarn build
 
-RUN npm install --global prisma
+RUN yarn install --global prisma
 
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start:dev"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:dev"]
 
 
 
@@ -39,16 +39,16 @@ COPY .env ./
 
 COPY package*.json ./
 
-RUN npm ci
+RUN  yarn install
 
 COPY . .
 
 
 RUN npx prisma generate
-RUN npm run build
+RUN yarn build
 
 RUN npm install --global prisma
 
 USER node
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:prod"]
