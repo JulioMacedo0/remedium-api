@@ -156,9 +156,7 @@ export class AlertsService {
                 differenceInMilliseconds(now, lastNotification);
 
               const intervalInMilliseconds =
-                trigger.hours * 60 * 60 * 1000 +
-                trigger.minutes * 60 * 1000 +
-                trigger.seconds * 1000;
+                trigger.hours * 60 * 60 * 1000 + trigger.minutes * 60 * 1000;
 
               if (
                 differenceInMillisecondsBetweenDates >= intervalInMilliseconds
