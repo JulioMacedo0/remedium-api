@@ -19,7 +19,7 @@ RUN npx prisma generate
 
 RUN yarn build
 
-RUN yarn install --global prisma
+RUN yarn global add prisma
 
 
 CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:dev"]
