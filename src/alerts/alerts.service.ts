@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
 import { AlertType } from '@prisma/client';
 import {
-  differenceInMilliseconds,
+  differenceInMinutes,
   isSameHour,
   isSameMinute,
   isToday,
@@ -152,15 +152,14 @@ export class AlertsService {
             {
               const messages = [];
               const lastNotification = trigger.last_alert ?? alert.createdAt;
-              const differenceInMillisecondsBetweenDates =
-                differenceInMilliseconds(now, lastNotification);
+              const differenceInMinutesBetweenDates = differenceInMinutes(
+                now,
+                lastNotification,
+              );
 
-              const intervalInMilliseconds =
-                trigger.hours * 60 * 60 * 1000 + trigger.minutes * 60 * 1000;
+              const intervalInMinutes = trigger.hours * 60 + trigger.minutes;
 
-              if (
-                differenceInMillisecondsBetweenDates >= intervalInMilliseconds
-              ) {
+              if (differenceInMinutesBetweenDates >= intervalInMinutes) {
                 this.logger.debug(
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
