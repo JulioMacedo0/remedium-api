@@ -153,8 +153,8 @@ export class AlertsService {
               const messages = [];
               const lastNotification = trigger.last_alert ?? alert.createdAt;
               const differenceInMinutesBetweenDates = differenceInMinutes(
-                now,
-                lastNotification,
+                now.setSeconds(0, 0),
+                lastNotification.setSeconds(0, 0),
               );
 
               const intervalInMinutes = trigger.hours * 60 + trigger.minutes;
