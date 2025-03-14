@@ -3,19 +3,20 @@ import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
-import { AlertType } from '@prisma/client';
+
 import {
   differenceInMinutes,
   isSameHour,
   isSameMinute,
   isToday,
 } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 import { ExpoPushMessage } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
 import { sendPushMessages } from 'src/helpers/sendPushMessages';
 import { createExpoMessage } from 'src/helpers/createExpoMessage';
+import { AlertType } from '@prisma/client';
 
 @Injectable()
 export class AlertsService {
@@ -135,8 +136,8 @@ export class AlertsService {
     alerts.forEach(async (alert) => {
       const { trigger, user } = alert;
 
-      const serverUserZonedTime = utcToZonedTime(now, user.timeZone);
-      const clientUserZonedTime = utcToZonedTime(trigger.date, user.timeZone);
+      const serverUserZonedTime = toZonedTime(now, user.timeZone);
+      const clientUserZonedTime = toZonedTime(trigger.date, user.timeZone);
 
       if (!user.expo_token) {
         this.logger.error(`User ${user.username} dont have token`);

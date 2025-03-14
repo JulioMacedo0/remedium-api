@@ -22,13 +22,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return payload;
   }
 
-  private static stractJWT(re: Request): string | null {
+  private static stractJWT(req: Request): string | null {
     if (
-      re.cookies &&
-      'user_token' in re.cookies &&
-      re.cookies.user_token.length > 0
+      req.cookies &&
+      'user_token' in req.cookies &&
+      req.cookies.user_token.length > 0
     ) {
-      return re.cookies.user_token;
+      return req.cookies.user_token;
     }
 
     return null;

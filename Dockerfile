@@ -1,54 +1,32 @@
 ###################
-# BUILD FOR LOCAL DEVELOPMENT
+# BUILD STAGE
 ###################
 
-FROM node:18-alpine As development
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY .env ./
-
-COPY package*.json ./
+COPY ./ ./
 
 RUN yarn install
 
-COPY . .
-
-
 RUN npx prisma generate
 
 RUN yarn build
 
-RUN yarn global add prisma
-
-
-CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:dev"]
-
-
 
 ###################
-# PRODUCTION
+# PRODUCTION STAGE
 ###################
 
-
-FROM node:18-alpine As production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
-COPY .env ./
-
-COPY package*.json ./
-
-RUN  yarn install
-
-COPY . .
-
-
-RUN npx prisma generate
-RUN yarn build
-
-RUN npm install --global prisma
+COPY --chown=node:node --from=builder /app/package*.json ./
+COPY --chown=node:node --from=builder /app/dist ./dist
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 
 USER node
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && yarn start:prod"]
+CMD ["yarn", "start:prod"]
