@@ -29,4 +29,4 @@ COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 
 USER node
 
-CMD ["yarn", "start:prod"]
+CMD ["sh", "-c", "yarn run db:deploy && yarn run start:prod"]
