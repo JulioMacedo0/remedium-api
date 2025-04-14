@@ -1,40 +1,56 @@
-version: '3.5'
+version: '3.8'
 
 services:
   db:
-    image: postgres
+    image: postgres:latest
+    container_name: remedium-db
     restart: always
     environment:
-      - POSTGRES_PASSWORD=postgres
-    container_name: remedium-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: remedium
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - '5432:5432'
 
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: development
     container_name: remedium-api-dev
-    environment:
-      - PORT=${PORT}
+    env_file:
+      - .env
     ports:
       - '${PORT}:${PORT}'
-    depends_on:
-      - prisma
     volumes:
-      - ./src:/app/src
+      - .:/app
+      - /app/node_modules # impede conflito com node_modules do host
+    depends_on:
+      db:
+        condition: service_healthy
+    command: yarn start:dev
 
   prisma:
     container_name: prisma-studio
+    build:
+      context: ./prisma
+      dockerfile: Dockerfile
+      target: development
     environment:
       - DATABASE_URL=${DATABASE_URL}
     ports:
       - '5556:5556'
     depends_on:
-      - db
-    build:
-      context: ./prisma
-      dockerfile: Dockerfile
-      target: development
+      db:
+        condition: service_healthy
     command: bash -c "npx prisma studio --port 5556"
+
+volumes:
+  db-data:

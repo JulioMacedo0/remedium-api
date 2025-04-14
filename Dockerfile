@@ -31,3 +31,5 @@ COPY --chown=node:node --from=builder /app/prisma ./prisma/
 USER node
 
 CMD ["sh", "-c", "yarn run db:deploy && yarn run start:prod"]
+
+
