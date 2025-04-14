@@ -24,6 +24,6 @@ WORKDIR /app
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/. .
 
-USER node
+#USER node
 
 CMD ["yarn", "start:dev"]
