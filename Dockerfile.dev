@@ -10,7 +10,7 @@ COPY package.json yarn.lock ./
 RUN yarn install
 
 COPY . .
-RUN npx prisma generate
+
 
 ###################
 # DEVELOPMENT STAGE
@@ -20,10 +20,12 @@ FROM node:22-slim AS development
 
 WORKDIR /app
 
-COPY --chown=node:node --from=builder /app/. .
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+COPY package.json yarn.lock ./
+RUN yarn install
 
+COPY . .
 
-#USER node
+RUN apt-get update && apt-get install -y procps openssl && rm -rf /var/lib/apt/lists/*
 
-CMD ["yarn", "start:dev"]
+# NÃO gere o prisma aqui (evita gerar pro host)
+CMD ["sh", "-c", "npx prisma generate && yarn start:dev"]
