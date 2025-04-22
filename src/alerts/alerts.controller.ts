@@ -13,12 +13,13 @@ import { AlertsService } from './alerts.service';
 import { CreateAlertDto } from './dto/create-alert.dto';
 
 import { UpdateAlertDto } from './dto/update-alert.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { GetJwtPayload } from 'src/auth/jwt.decorator';
 import { JwtEnity } from 'src/auth/entity/jwt.entity';
 import { createAlertValidationSchema } from 'src/shared/validation-schema/alert';
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
+import { DebugNotificationDto } from './dto/debug-notification.dto';
 
 @Controller('api/v1/alerts')
 @UseGuards(JwtAuthGuard)
@@ -33,6 +34,20 @@ export class AlertsController {
     @GetJwtPayload() jwt: JwtEnity,
   ) {
     return this.alertsService.create(jwt.id, createAlertDto);
+  }
+
+  @Post('debug')
+  @ApiOperation({
+    summary:
+      'Envia uma notificação de teste para um dispositivo OneSignal específico',
+  })
+  @ApiResponse({ status: 200, description: 'Notificação enviada com sucesso' })
+  @ApiResponse({
+    status: 400,
+    description: 'Player ID não fornecido',
+  })
+  sendDebugNotification(@Body() debugDto: DebugNotificationDto) {
+    return this.alertsService.sendDebugNotification(debugDto);
   }
 
   @Get()
