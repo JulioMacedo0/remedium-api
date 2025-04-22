@@ -31,7 +31,6 @@ services:
       - '${PORT}:${PORT}'
     volumes:
       - .:/app
-      - /app/node_modules # impede conflito com node_modules do host
     depends_on:
       db:
         condition: service_healthy
