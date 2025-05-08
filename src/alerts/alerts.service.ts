@@ -19,7 +19,7 @@ import { toZonedTime } from 'date-fns-tz';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
 import { createOneSignalMessage } from 'src/helpers/createOneSignalMessage';
-import { AlertType } from '@prisma/client';
+import { Alert, AlertType, User } from '@prisma/client';
 import { OneSignalService } from 'src/onesignal/onesignal.service';
 import { DebugNotificationDto } from './dto/debug-notification.dto';
 
@@ -110,7 +110,7 @@ export class AlertsService {
   }
 
   // Método auxiliar para enviar notificações via OneSignal
-  private async sendOneSignalNotification(user: any, alert: any) {
+  private async sendOneSignalNotification(user: User, alert: Alert) {
     try {
       if (!user.expo_token) {
         this.logger.error(
@@ -190,11 +190,14 @@ export class AlertsService {
       select: {
         id: true,
         title: true,
-        body: true,
         subtitle: true,
+        body: true,
         createdAt: true,
+        updatedAt: true,
+        userId: true,
         user: {
           select: {
+            id: true,
             username: true,
             email: true,
             expo_token: true,
@@ -241,7 +244,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                await this.sendOneSignalNotification(user, alert);
+                await this.sendOneSignalNotification(user as User, alert);
 
                 await this.prisma.alert.update({
                   where: { id: alert.id },
@@ -266,7 +269,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                await this.sendOneSignalNotification(user, alert);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;
@@ -290,7 +293,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                await this.sendOneSignalNotification(user, alert);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;
@@ -305,7 +308,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                await this.sendOneSignalNotification(user, alert);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;
