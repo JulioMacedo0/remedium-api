@@ -1,16 +1,8 @@
+import { Alert, User } from '@prisma/client';
+
 export const createOneSignalMessage = (
-  user: {
-    username: string;
-    email: string;
-    expo_token: string;
-  },
-  alert: {
-    id: string;
-    title: string;
-    subtitle: string;
-    body: string;
-    createdAt: Date;
-  },
+  user: User,
+  alert: Alert,
 ): {
   playerId: string;
   title: string;
@@ -19,7 +11,7 @@ export const createOneSignalMessage = (
   data: any;
 } => {
   return {
-    playerId: user.expo_token,
+    playerId: user.id,
     title: alert.title,
     subtitle: alert.subtitle,
     body: alert.body,
