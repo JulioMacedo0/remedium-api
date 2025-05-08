@@ -27,8 +27,18 @@ services:
       - .env
     ports:
       - '${PORT}:${PORT}'
-    volumes:
-      - .:/app
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./yarn.lock
+          action: rebuild
+        - path: .
+          target: /app
+          action: sync
+          ignore:
+            - node_modules/
+            - .git/
     depends_on:
       db:
         condition: service_healthy

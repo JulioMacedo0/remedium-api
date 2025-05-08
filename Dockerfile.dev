@@ -6,9 +6,15 @@ FROM node:22-slim AS builder
 
 WORKDIR /app
 
+# Copiar arquivos de configuração necessários
 COPY package.json yarn.lock ./
+COPY tsconfig.json tsconfig.build.json nest-cli.json ./
 RUN yarn install
 
+# Copiar o diretório prisma explicitamente para garantir que o schema esteja disponível
+COPY prisma/ ./prisma/
+
+# Copiar o resto dos arquivos
 COPY . .
 
 
@@ -20,12 +26,20 @@ FROM node:22-slim AS development
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-RUN yarn install
-
-COPY . .
-
+# Instalar dependências de SO necessárias
 RUN apt-get update && apt-get install -y procps openssl && rm -rf /var/lib/apt/lists/*
 
-# NÃO gere o prisma aqui (evita gerar pro host)
-CMD ["sh", "-c", "npx prisma generate && yarn start:dev"]
+# Copiar arquivos de configuração necessários
+COPY package.json yarn.lock ./
+COPY tsconfig.json tsconfig.build.json nest-cli.json ./
+RUN yarn install
+
+# Copiar o diretório prisma explicitamente
+COPY prisma/ ./prisma/
+
+# O restante dos arquivos será montado via Docker watch mode
+# para sincronização eficiente em tempo real
+
+# Compilar inicialmente o TypeScript para garantir que o diretório dist exista
+# e então executar prisma generate e iniciar o aplicativo em modo watch
+CMD ["sh", "-c", "npx prisma generate  && yarn start:dev"]
