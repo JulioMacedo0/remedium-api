@@ -17,21 +17,21 @@ services:
     ports:
       - '5432:5432'
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: remedium-api-dev
-    env_file:
-      - .env
-    ports:
-      - '${PORT}:${PORT}'
-    volumes:
-      - .:/app
-      - /app/node_modules
-    depends_on:
-      db:
-        condition: service_healthy
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: remedium-api-dev
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - '${PORT}:${PORT}'
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
   prisma:
     container_name: prisma-studio
