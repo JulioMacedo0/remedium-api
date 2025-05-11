@@ -1,6 +1,7 @@
 # compiled output
 .env
 /dist
+/generated
 /node_modules
 pgdata
 # Logs
