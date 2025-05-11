@@ -21,28 +21,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-      target: development
     container_name: remedium-api-dev
     env_file:
       - .env
     ports:
       - '${PORT}:${PORT}'
-    develop:
-      watch:
-        - path: ./package.json
-          action: rebuild
-        - path: ./yarn.lock
-          action: rebuild
-        - path: .
-          target: /app
-          action: sync
-          ignore:
-            - node_modules/
-            - .git/
+    volumes:
+      - .:/app
+      - /app/node_modules
     depends_on:
       db:
         condition: service_healthy
-    command: yarn start:dev
 
   prisma:
     container_name: prisma-studio
