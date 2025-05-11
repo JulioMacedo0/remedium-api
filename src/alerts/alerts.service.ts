@@ -112,13 +112,6 @@ export class AlertsService {
   // Método auxiliar para enviar notificações via OneSignal
   private async sendOneSignalNotification(user: User, alert: Alert) {
     try {
-      if (!user.expo_token) {
-        this.logger.error(
-          `User ${user.username} doesn't have a OneSignal player ID`,
-        );
-        return;
-      }
-
       const messageData = createOneSignalMessage(user, alert);
 
       await this.oneSignalService.sendNotification(
@@ -216,13 +209,6 @@ export class AlertsService {
 
       const serverUserZonedTime = toZonedTime(now, user.timeZone);
       const clientUserZonedTime = toZonedTime(trigger.date, user.timeZone);
-
-      if (!user.expo_token) {
-        this.logger.error(
-          `User ${user.username} doesn't have OneSignal player ID`,
-        );
-        return;
-      }
 
       this.logger.log(
         `CHECK ALERT: ${alert.title} | ALERT TYPE: ${trigger.alertType}  | USER: ${user.username}`,
