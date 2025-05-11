@@ -15,6 +15,7 @@ export class OneSignalService {
   constructor(private configService: ConfigService) {
     const appId = this.configService.get<string>('ONESIGNAL_APP_ID');
     const apiKey = this.configService.get<string>('ONESIGNAL_API_KEY');
+    this.logger.log('Initializing OneSignal service');
 
     if (!appId || !apiKey) {
       this.logger.error('OneSignal credentials are not configured!');
@@ -22,10 +23,10 @@ export class OneSignalService {
     }
 
     this.appId = appId;
+    this.logger.log('OneSignal credentials loaded successfully!');
 
-    // Usando a função createConfiguration em vez da classe Configuration
     const configuration = createConfiguration({
-      userAuthKey: apiKey,
+      restApiKey: apiKey,
     });
 
     this.oneSignalClient = new DefaultApi(configuration);
@@ -46,13 +47,13 @@ export class OneSignalService {
         return;
       }
 
-      const notification = new Notification();
-      notification.app_id = this.appId;
-
-      // Usando um objeto literal para definir a notificação com tipagem correta
-      const notificationRequest = {
+      const notificationRequest: Notification = {
         app_id: this.appId,
-        include_player_ids: playerIds,
+
+        include_aliases: {
+          external_id: playerIds,
+        },
+        target_channel: 'push',
         headings: { en: title },
         subtitle: { en: subtitle },
         contents: { en: body },
