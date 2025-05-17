@@ -8,6 +8,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthEntity } from './entity/auth.entity';
 import { comparePassword } from 'src/utils/bcrypt';
 import { Response } from 'express';
+import { TokenType } from './entity/jwt.entity';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -36,6 +38,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
+        tokenType: 'access' as TokenType,
       },
       { expiresIn: '15m' },
     );
@@ -43,7 +46,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       {
         id: user.id,
-        tokenType: 'refresh',
+        tokenType: 'refresh' as TokenType,
       },
       { expiresIn: '30d' },
     );
@@ -88,6 +91,7 @@ export class AuthService {
           id: user.id,
           username: user.username,
           email: user.email,
+          tokenType: 'access' as TokenType,
         },
         { expiresIn: '15m' },
       );
@@ -95,7 +99,7 @@ export class AuthService {
       const newRefreshToken = this.jwtService.sign(
         {
           id: user.id,
-          tokenType: 'refresh',
+          tokenType: 'refresh' as TokenType,
         },
         { expiresIn: '30d' },
       );

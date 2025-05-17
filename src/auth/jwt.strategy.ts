@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from 'src/users/users.service';
 import { Request } from 'express';
-import { JwtEnity } from './entity/jwt.entity';
+import { JwtEnity, TokenType } from './entity/jwt.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtEnity) {
-    if (payload.tokenType && payload.tokenType === 'refresh') {
+    if (payload.tokenType === 'refresh') {
       throw new UnauthorizedException('Invalid token for this operation');
     }
 
