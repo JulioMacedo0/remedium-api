@@ -1,5 +1,5 @@
 //src/auth/jwt.strategy.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from 'src/users/users.service';
@@ -11,24 +11,29 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private usersService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.stractJWT,
+        JwtStrategy.extractJWT,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       secretOrKey: process.env.JWTSECRET,
+      ignoreExpiration: false,
     });
   }
 
   async validate(payload: JwtEnity) {
+    if (payload.tokenType && payload.tokenType === 'refresh') {
+      throw new UnauthorizedException('Invalid token for this operation');
+    }
+
     return payload;
   }
 
-  private static stractJWT(req: Request): string | null {
+  private static extractJWT(req: Request): string | null {
     if (
       req.cookies &&
-      'user_token' in req.cookies &&
-      req.cookies.user_token.length > 0
+      'accessToken' in req.cookies &&
+      req.cookies.accessToken.length > 0
     ) {
-      return req.cookies.user_token;
+      return req.cookies.accessToken;
     }
 
     return null;
