@@ -38,14 +38,10 @@ export class AlertsController {
 
   @Post('debug')
   @ApiOperation({
-    summary:
-      'Envia uma notificação de teste para um dispositivo OneSignal específico',
+    summary: 'Send a test notification to a specific OneSignal device',
   })
-  @ApiResponse({ status: 200, description: 'Notificação enviada com sucesso' })
-  @ApiResponse({
-    status: 400,
-    description: 'Player ID não fornecido',
-  })
+  @ApiResponse({ status: 200, description: 'Notification sent successfully' })
+  @ApiResponse({ status: 400, description: 'Player ID not provided' })
   sendDebugNotification(@Body() debugDto: DebugNotificationDto) {
     return this.alertsService.sendDebugNotification(debugDto);
   }

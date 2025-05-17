@@ -136,18 +136,17 @@ export class AlertsService {
   async sendDebugNotification(debugDto: DebugNotificationDto) {
     try {
       if (!debugDto.playerId) {
-        throw new Error('É necessário fornecer um playerId do OneSignal');
+        throw new Error('A OneSignal player ID is required');
       }
 
-      const title = debugDto.title || 'Notificação de teste';
+      const title = debugDto.title || 'Test notification';
       const subtitle = debugDto.subtitle || 'Debug';
-      const body = debugDto.body || 'Esta é uma notificação de teste';
+      const body = debugDto.body || 'This is a test notification';
       const data = debugDto.data || {
         debug: true,
         timestamp: new Date().toISOString(),
       };
 
-      // Envia a notificação diretamente para o OneSignal usando o playerId
       await this.oneSignalService.sendNotification(
         [debugDto.playerId],
         title,
@@ -158,7 +157,7 @@ export class AlertsService {
 
       return {
         success: true,
-        message: `Notificação de teste enviada para o dispositivo com playerId: ${debugDto.playerId}`,
+        message: `Test notification sent to device with playerId: ${debugDto.playerId}`,
         notificationDetails: {
           title,
           subtitle,
@@ -167,9 +166,7 @@ export class AlertsService {
         },
       };
     } catch (error) {
-      this.logger.error(
-        `Erro ao enviar notificação de debug: ${error.message}`,
-      );
+      this.logger.error(`Error sending debug notification: ${error.message}`);
       throw error;
     }
   }
