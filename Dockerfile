@@ -1,35 +1,36 @@
-###################
-# BUILD STAGE
-###################
+FROM node:22-alpine as build
 
-FROM node:22-alpine AS builder
-
+# Working directory inside the container
 WORKDIR /app
 
-COPY ./ ./
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
+# Install dependencies
 RUN yarn install
 
+# Copy the application code
+COPY . .
+
+# Generate Prisma client
 RUN npx prisma generate
 
-RUN yarn build
+# Build the application
+RUN yarn run build
 
-
-###################
-# PRODUCTION STAGE
-###################
-
+# Production Stage
 FROM node:22-alpine AS production
 
+# Working directory inside the container
 WORKDIR /app
 
-COPY --chown=node:node --from=builder /app/package*.json ./
-COPY --chown=node:node --from=builder /app/dist ./dist
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
-COPY --chown=node:node --from=builder /app/prisma ./prisma/
+COPY --chown=node:node --from=build /app/dist ./dist
+COPY --chown=node:node --from=build /app/node_modules ./node_modules
+COPY --chown=node:node --from=build /app/prisma /app/prisma
+COPY package*.json ./
 
+# Switch to the non-root user
 USER node
 
-CMD ["sh", "-c", "yarn run db:deploy && yarn run start:prod"]
-
-
+# Start the application
+CMD ["yarn", "run", "start:prod"]

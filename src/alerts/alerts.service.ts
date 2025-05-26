@@ -1,4 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,33 +16,33 @@ import {
   isToday,
 } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { ExpoPushMessage } from 'expo-server-sdk';
 import { isAlertDay } from 'src/helpers/isAlertDay';
 import { dayOfWeekToNumber } from 'src/helpers/dayOfWeekToNumber';
-import { sendPushMessages } from 'src/helpers/sendPushMessages';
-import { createExpoMessage } from 'src/helpers/createExpoMessage';
-import { AlertType } from '@prisma/client';
+import { createOneSignalMessage } from 'src/helpers/createOneSignalMessage';
+import { Alert, AlertType, User } from '@prisma/client';
+import { OneSignalService } from 'src/onesignal/onesignal.service';
+import { DebugNotificationDto } from './dto/debug-notification.dto';
 
 @Injectable()
 export class AlertsService {
   private readonly logger = new Logger(AlertsService.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private oneSignalService: OneSignalService,
+  ) {}
+
   create(id: string, createAlertDto: CreateAlertDto) {
     return this.prisma.alert.create({
       data: {
         title: createAlertDto.title,
         body: createAlertDto.body,
         subtitle: createAlertDto.subtitle,
-        // unit_of_measurement: createAlertDto.unit_of_measurement,
         trigger: {
           create: { ...createAlertDto.trigger, last_alert: new Date() },
         },
         user: {
           connect: { id },
         },
-        // medicine: {
-        //   connect: { id: createAlertDto.medicine_id },
-        // },
       },
 
       include: {
@@ -51,7 +56,6 @@ export class AlertsService {
       where: { userId: id },
       include: {
         trigger: true,
-        // medicine: true,
       },
     });
 
@@ -105,6 +109,68 @@ export class AlertsService {
     return alert;
   }
 
+  // Método auxiliar para enviar notificações via OneSignal
+  private async sendOneSignalNotification(user: User, alert: Alert) {
+    try {
+      const messageData = createOneSignalMessage(user, alert);
+
+      await this.oneSignalService.sendNotification(
+        [messageData.playerId],
+        messageData.title,
+        messageData.subtitle,
+        messageData.body,
+        messageData.data,
+      );
+
+      this.logger.log(
+        `Successfully sent OneSignal notification to ${user.username}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error sending OneSignal notification: ${error.message}`,
+      );
+    }
+  }
+
+  // Método para enviar notificação de teste/debug
+  async sendDebugNotification(debugDto: DebugNotificationDto) {
+    try {
+      if (!debugDto.playerId) {
+        throw new Error('A OneSignal player ID is required');
+      }
+
+      const title = debugDto.title || 'Test notification';
+      const subtitle = debugDto.subtitle || 'Debug';
+      const body = debugDto.body || 'This is a test notification';
+      const data = debugDto.data || {
+        debug: true,
+        timestamp: new Date().toISOString(),
+      };
+
+      await this.oneSignalService.sendNotification(
+        [debugDto.playerId],
+        title,
+        subtitle,
+        body,
+        data,
+      );
+
+      return {
+        success: true,
+        message: `Test notification sent to device with playerId: ${debugDto.playerId}`,
+        notificationDetails: {
+          title,
+          subtitle,
+          body,
+          data,
+        },
+      };
+    } catch (error) {
+      this.logger.error(`Error sending debug notification: ${error.message}`);
+      throw error;
+    }
+  }
+
   @Cron('*/60 * * * * *')
   async verifyAlerts() {
     this.logger.log('Checking alerts 🔎🔎🔎');
@@ -114,12 +180,14 @@ export class AlertsService {
       select: {
         id: true,
         title: true,
-        body: true,
         subtitle: true,
-        // unit_of_measurement: true,
+        body: true,
         createdAt: true,
+        updatedAt: true,
+        userId: true,
         user: {
           select: {
+            id: true,
             username: true,
             email: true,
             expo_token: true,
@@ -139,11 +207,6 @@ export class AlertsService {
       const serverUserZonedTime = toZonedTime(now, user.timeZone);
       const clientUserZonedTime = toZonedTime(trigger.date, user.timeZone);
 
-      if (!user.expo_token) {
-        this.logger.error(`User ${user.username} dont have token`);
-        return;
-      }
-
       this.logger.log(
         `CHECK ALERT: ${alert.title} | ALERT TYPE: ${trigger.alertType}  | USER: ${user.username}`,
       );
@@ -151,7 +214,6 @@ export class AlertsService {
         switch (trigger.alertType) {
           case AlertType.INTERVAL:
             {
-              const messages = [];
               const lastNotification = trigger.last_alert ?? alert.createdAt;
               const differenceInMinutesBetweenDates = differenceInMinutes(
                 now.setSeconds(0, 0),
@@ -165,8 +227,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push(createExpoMessage(user, alert));
-                sendPushMessages(messages, this.logger);
+                await this.sendOneSignalNotification(user as User, alert);
 
                 await this.prisma.alert.update({
                   where: { id: alert.id },
@@ -183,8 +244,6 @@ export class AlertsService {
             break;
           case AlertType.DAILY:
             {
-              const messages = [];
-
               if (
                 isSameHour(clientUserZonedTime, serverUserZonedTime) &&
                 isSameMinute(clientUserZonedTime, serverUserZonedTime)
@@ -193,14 +252,12 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push(createExpoMessage(user, alert));
-                sendPushMessages(messages, this.logger);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;
           case AlertType.WEEKLY:
             {
-              const messages = [];
               const weeksToTrigger: number[] = [];
 
               for (const week of trigger.week) {
@@ -219,15 +276,12 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push(createExpoMessage(user, alert));
-                sendPushMessages(messages, this.logger);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;
           case AlertType.DATE:
             {
-              const messages: ExpoPushMessage[] = [];
-
               if (
                 isToday(trigger.date) &&
                 isSameHour(clientUserZonedTime, serverUserZonedTime) &&
@@ -237,8 +291,7 @@ export class AlertsService {
                   `SENDING ALERT: ${alert.title} TO USER ${user.username}`,
                 );
 
-                messages.push(createExpoMessage(user, alert));
-                sendPushMessages(messages, this.logger);
+                await this.sendOneSignalNotification(user as User, alert);
               }
             }
             break;

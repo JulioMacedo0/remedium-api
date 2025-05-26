@@ -8,6 +8,7 @@ import { MedicinesModule } from './medicines/medicines.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
+import { OneSignalModule } from './onesignal/onesignal.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ConfigModule } from '@nestjs/config';
     PrismaModule,
     MedicinesModule,
     AlertsModule,
+    OneSignalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
