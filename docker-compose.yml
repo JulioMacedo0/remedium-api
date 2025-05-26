@@ -1,5 +1,5 @@
 services:
-  db:
+  remedium-db:
     image: postgres:latest
     restart: always
     environment:
@@ -13,7 +13,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  api:
+  remedium-api:
     build:
       context: .
       dockerfile: Dockerfile
