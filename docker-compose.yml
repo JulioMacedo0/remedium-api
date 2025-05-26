@@ -24,6 +24,6 @@ services:
     expose:
       - '${PORT}'
     depends_on:
-      - db
+      - remedium-db
 volumes:
   db-data:
