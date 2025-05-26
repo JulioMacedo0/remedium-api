@@ -26,6 +26,8 @@ services:
     restart: always
     env_file:
       - .env
+    expose:
+      - '${PORT}'
     depends_on:
       - db
 
