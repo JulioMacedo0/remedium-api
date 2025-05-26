@@ -14,8 +14,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - easypanel
   app:
     build:
       context: .
@@ -29,11 +27,5 @@ services:
       - '${PORT}'
     depends_on:
       - db
-    networks:
-      - easypanel
 volumes:
   db-data:
-networks:
-  easypanel:
-    external: true
-    name: easypanel
