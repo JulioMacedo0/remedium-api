@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   remedium-db:
     image: postgres:latest
@@ -13,6 +15,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - easypanel
+
   remedium-api:
     build:
       context: .
@@ -25,5 +30,12 @@ services:
       - '${PORT}'
     depends_on:
       - remedium-db
+    networks:
+      - easypanel
+
 volumes:
   db-data:
+
+networks:
+  easypanel:
+    external: true
