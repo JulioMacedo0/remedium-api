@@ -5,15 +5,33 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-known-request.error.filter';
 import * as cookieParser from 'cookie-parser';
 import { PrismaClientValidationFilter } from './prisma-client-exception/prisma-client-validation-error.filter';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('App');
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
+
+  // Configure Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('Median')
-    .setDescription('The Median API description')
-    .setVersion('0.1')
+    .setTitle('Remedium API')
+    .setDescription('API for medication reminders and alerts management')
+    .setVersion('1.0')
+    .addTag('authentication', 'Authentication endpoints')
+    .addTag('users', 'User management endpoints')
+    .addTag('medicines', 'Medicine management endpoints')
+    .addTag('alerts', 'Alert and notification management endpoints')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

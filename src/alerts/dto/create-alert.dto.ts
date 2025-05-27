@@ -2,23 +2,32 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Alert, Trigger } from '@prisma/client';
 
 export class CreateAlertDto implements Alert {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The title of the alert notification',
+    example: 'Take Medication',
+    required: true,
+  })
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The subtitle of the alert notification',
+    example: 'Daily Dosage Reminder',
+    required: true,
+  })
   subtitle: string;
 
-  // @ApiProperty()
-  // unit_of_measurement: unitOfMeasurament;
-
-  @ApiProperty()
+  @ApiProperty({
+    description: 'The main content body of the alert notification',
+    example: 'Time to take your prescribed medication',
+    required: true,
+  })
   body: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Configuration for when and how the alert should trigger',
+    required: true,
+  })
   trigger: Trigger;
-
-  // @ApiProperty()
-  // medicine_id: string;
 
   createdAt: Date;
   id: string;
