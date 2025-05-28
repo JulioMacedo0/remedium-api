@@ -4,7 +4,7 @@ export const getUserDate = (user: {
   expo_token: string;
   languageTag: string;
   timeZone: string;
-}) => {
+}): Date => {
   const currentTime = new Date();
   const currentTimeInTimeZone = new Date(
     currentTime.toLocaleString(user.languageTag, {

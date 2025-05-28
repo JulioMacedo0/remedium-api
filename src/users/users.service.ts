@@ -5,12 +5,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { encoderPassword } from 'src/utils/bcrypt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const encriptPassword = await encoderPassword(createUserDto.password);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,7 +22,7 @@ export class UsersService {
     return user;
   }
 
-  async findAll() {
+  async findAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -30,13 +31,17 @@ export class UsersService {
         medicines: true,
         alerts: true,
         expo_token: true,
+        createdAt: true,
+        updatedAt: true,
+        languageTag: true,
+        timeZone: true,
       },
     });
 
     return users;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id },
     });
@@ -45,7 +50,10 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.update({
       where: { id },
       data: {
@@ -56,7 +64,7 @@ export class UsersService {
     return user;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.delete({ where: { id } });
     delete user.password;
     return user;

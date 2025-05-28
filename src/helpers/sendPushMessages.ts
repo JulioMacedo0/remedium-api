@@ -4,7 +4,7 @@ import { ExpoPushMessage, Expo } from 'expo-server-sdk';
 export const sendPushMessages = async (
   messages: ExpoPushMessage[],
   logger: Logger,
-) => {
+): Promise<void> => {
   const expo = new Expo();
 
   const chunks = expo.chunkPushNotifications(messages);
